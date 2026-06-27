@@ -584,6 +584,39 @@
     /* pulsanti giorno su due righe (abbr + numero) */
     .day-btn { flex-direction: column; gap: 2px; }
     .day-num { font-size: 0.7rem; font-weight: 700; }
+
+    /* Salva allenamento */
+    .save-workout-btn {
+        width: 100%;
+        background-color: #238636;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        min-height: 48px;
+        margin-top: 8px;
+    }
+    .save-workout-btn:active { transform: scale(0.98); }
+    .save-confirm {
+        text-align: center;
+        color: #56d364;
+        font-weight: 600;
+        font-size: 0.9rem;
+        min-height: 1.2rem;
+        margin-top: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    /* Badge allenamento nelle statistiche */
+    .stats-workout-badge {
+        color: #56d364;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-right: 8px;
+    }
     </style>
 </head>
 <body>
@@ -601,7 +634,7 @@
         </div>
 
         <div id="steps-section">
-            <h3>🦶 Passi di Oggi</h3>
+            <h3>🦶 Passi del giorno</h3>
             <div class="steps-input-row">
                 <input type="number" id="steps-input" placeholder="Inserisci i passi..." min="0" max="99999" inputmode="numeric">
                 <button id="steps-save-btn" onclick="saveSteps()">✓</button>
@@ -807,6 +840,7 @@
         // Programma e giorni
         function selectDate(iso) {
           selectedDate = iso;
+          refreshStepsSection(iso); // i passi seguono il giorno selezionato
           document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active')); // NON togliere .today
           const btn = document.querySelector(`.day-btn[data-date="${iso}"]`);
           if (btn) btn.classList.add('active');
@@ -891,6 +925,26 @@
             list.appendChild(card);
             updateExerciseProgress(card.querySelector('.workout-log-section'));
           });
+
+          // Pulsante di salvataggio esplicito dell'intero allenamento del giorno
+          const saveBar = document.createElement('div');
+          saveBar.innerHTML = `
+            <button class="save-workout-btn" onclick="saveAllExercises()">💾 Salva allenamento</button>
+            <div id="save-confirm" class="save-confirm"></div>`;
+          list.appendChild(saveBar);
+        }
+
+        // Salva tutte le serie inserite per il giorno selezionato e mostra conferma
+        function saveAllExercises() {
+          document.querySelectorAll('.workout-log-section').forEach(sec => {
+            saveExerciseLog(sec.dataset.exerciseId);
+          });
+          const c = document.getElementById('save-confirm');
+          if (c) {
+            c.textContent = '✓ Allenamento salvato';
+            c.style.opacity = '1';
+            setTimeout(() => { c.style.opacity = '0'; }, 2000);
+          }
         }
 
         function toggleDescription(btn) {
@@ -913,17 +967,35 @@
         function saveSteps() {
             const input = document.getElementById('steps-input');
             const value = parseInt(input.value);
-            
+
             if (isNaN(value) || value <= 0) return;
 
             document.querySelector('.steps-input-row').style.display = 'none';
             document.getElementById('steps-display').style.display = 'block';
             document.getElementById('steps-value').textContent = value.toLocaleString('it-IT');
-            
-            const today = new Date().toISOString().split('T')[0];
+
+            // I passi sono salvati sul GIORNO SELEZIONATO (non sempre "oggi")
             const history = getStepsHistory();
-            history[today] = value;
+            history[selectedDate] = value;
             localStorage.setItem('steps_history', JSON.stringify(history));
+        }
+
+        // Aggiorna la sezione passi in base al giorno selezionato
+        function refreshStepsSection(iso) {
+            const history = getStepsHistory();
+            const input = document.getElementById('steps-input');
+            const inputRow = document.querySelector('.steps-input-row');
+            const display = document.getElementById('steps-display');
+            if (history[iso] != null && history[iso] > 0) {
+                input.value = history[iso];
+                inputRow.style.display = 'none';
+                display.style.display = 'block';
+                document.getElementById('steps-value').textContent = history[iso].toLocaleString('it-IT');
+            } else {
+                input.value = '';
+                inputRow.style.display = 'flex';
+                display.style.display = 'none';
+            }
         }
 
         function editSteps() {
@@ -1087,7 +1159,7 @@
             for (let i = days - 1; i >= 0; i--) {
                 const d = new Date(today);
                 d.setDate(d.getDate() - i);
-                dates.push(d.toISOString().split('T')[0]);
+                dates.push(toISO(d)); // data LOCALE, coerente con saveSteps/selectedDate
             }
             
             const values = dates.map(d => history[d] || 0);
@@ -1113,26 +1185,33 @@
             drawBarChart(dates, values, period);
             
             const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+            const workoutLog = getWorkoutLog();
+            const hasAnyWorkout = dates.some(d => workoutLog[d] && Object.keys(workoutLog[d]).length > 0);
             let detailsHtml = '';
-            
-            if (filledValues.length === 0) {
+
+            if (filledValues.length === 0 && !hasAnyWorkout) {
                 detailsHtml = `
                     <div style="text-align:center; padding:32px 16px; color:#8b949e;">
                       <div style="font-size:2.5rem; margin-bottom:12px;">📊</div>
-                      <p style="font-size:0.95rem;">Nessun passo registrato in questo periodo.</p>
-                      <p style="font-size:0.85rem; margin-top:4px;">Salva i tuoi passi dal tab Programma per vederli qui.</p>
+                      <p style="font-size:0.95rem;">Nessun dato registrato in questo periodo.</p>
+                      <p style="font-size:0.85rem; margin-top:4px;">Salva passi e allenamenti dal tab Programma per vederli qui.</p>
                     </div>
                 `;
             } else {
                 for (let i = dates.length - 1; i >= 0; i--) {
-                    const d = new Date(dates[i] + 'T12:00:00');
+                    const dstr = dates[i];
+                    const d = new Date(dstr + 'T12:00:00');
                     const dayLabel = `${dayNames[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
                     const val = values[i];
-                    if (val > 0) {
-                        detailsHtml += `<div class="stats-day-row"><span class="stats-day-date">${dayLabel}</span><span class="stats-day-value">${val.toLocaleString('it-IT')} passi</span></div>`;
-                    } else {
-                        detailsHtml += `<div class="stats-day-row"><span class="stats-day-date">${dayLabel}</span><span class="stats-day-value no-data">—</span></div>`;
-                    }
+                    const wo = workoutLog[dstr];
+                    const nEx = wo ? Object.keys(wo).length : 0;
+
+                    let right = '';
+                    if (nEx > 0) right += `<span class="stats-workout-badge">🏋️ ${nEx} eserc.</span>`;
+                    if (val > 0) right += `${val.toLocaleString('it-IT')} passi`;
+                    if (!right) right = `<span class="no-data">—</span>`;
+
+                    detailsHtml += `<div class="stats-day-row"><span class="stats-day-date">${dayLabel}</span><span class="stats-day-value">${right}</span></div>`;
                 }
             }
             document.getElementById('stats-details').innerHTML = detailsHtml;
@@ -1196,16 +1275,7 @@
         // Setup iniziale
         document.addEventListener('DOMContentLoaded', () => {
           renderDayButtons();
-          selectDate(toISO(new Date()));
-
-          // --- passi: logica INVARIATA (resta legata a oggi) ---
-          const today = new Date().toISOString().split('T')[0];
-          const stepsHistory = getStepsHistory();
-          if (stepsHistory[today]) {
-            document.querySelector('.steps-input-row').style.display = 'none';
-            document.getElementById('steps-display').style.display = 'block';
-            document.getElementById('steps-value').textContent = stepsHistory[today].toLocaleString('it-IT');
-          }
+          selectDate(toISO(new Date())); // selectDate aggiorna anche la sezione passi del giorno
         });
     </script>
 </body>
