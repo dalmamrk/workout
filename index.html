@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💪 Il mio Allenamento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 32px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e6edf3;
+        }
+
+        /* Nav Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        .nav-tab {
+            flex: 1;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: none;
+            padding: 14px 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 48px;
+        }
+
+        .nav-tab.active {
+            background-color: #58a6ff;
+            color: #0d1117;
+            font-weight: 700;
+        }
+
+        .nav-tab:active {
+            transform: scale(0.97);
+        }
+
+        /* Programma */
+        .days-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .day-btn {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 12px 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .day-btn.today::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+        }
+
+        .day-btn.today.active::after { background-color: #0d1117; }
+
+        .day-btn:active {
+            transform: scale(0.95);
+        }
+
+        .day-btn.active {
+            background-color: #58a6ff;
+            color: #0d1117;
+            border-color: #58a6ff;
+            font-weight: 700;
+        }
+
+        .day-btn.rest {
+            background-color: #161b22;
+            color: #8b949e;
+            border-color: #21262d;
+            font-style: italic;
+        }
+
+        .day-btn.rest.active {
+            background-color: #8b949e;
+            color: #0d1117;
+            border-color: #8b949e;
+        }
+
+        /* Sezione passi */
+        #steps-section {
+            background-color: #161b22;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        
+        #steps-section h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #e6edf3;
+        }
+
+        .steps-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        #steps-input {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-size: 1.2rem;
+            padding: 12px 16px;
+            width: 100%;
+            flex: 1;
+            outline: none;
+        }
+
+        #steps-input:focus {
+            border-color: #58a6ff;
+        }
+
+        #steps-save-btn {
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            padding: 12px 16px;
+            min-width: 48px;
+            cursor: pointer;
+        }
+
+        #steps-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #58a6ff;
+            margin-top: 12px;
+        }
+
+        #steps-edit-btn {
+            background-color: transparent;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        /* Intestazione Giorno */
+        #day-header {
+            margin-bottom: 16px;
+        }
+
+        #day-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #e6edf3;
+        }
+
+        #day-subtitle {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        /* Card Esercizio */
+        .exercise-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exercise-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e6edf3;
+        }
+
+        .muscle-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Colori Badge */
+        .badge-petto { background-color: #1f3a2e; color: #56d364; }
+        .badge-bicipiti { background-color: #3b1f3a; color: #d2a8ff; }
+        .badge-tricipiti { background-color: #3b2f1f; color: #f0b858; }
+        .badge-spalle { background-color: #1f2d3b; color: #79c0ff; }
+        .badge-dorso { background-color: #3b1f1f; color: #ff7b72; }
+        .badge-core { background-color: #2b3a1f; color: #a5d66e; }
+        .badge-gambe { background-color: #1f3a3a; color: #56d3c4; }
+        .badge-glutei { background-color: #3b1f2e; color: #ff9ec4; }
+
+        .exercise-sets {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        .toggle-desc-btn {
+            background-color: transparent;
+            border: none;
+            color: #58a6ff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 6px 0;
+            margin-top: 6px;
+        }
+
+        .exercise-desc {
+            display: none;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #8b949e;
+        }
+
+        /* Sezione Log */
+        .workout-log-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #21262d;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .log-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .log-progress { font-size: 0.8rem; color: #8b949e; font-weight: 600; }
+        .log-progress.done { color: #56d364; }
+        .exercise-card.completed { border-left: 3px solid #238636; }
+
+        .log-sets-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .log-set-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .log-set-label {
+            font-size: 0.8rem;
+            color: #8b949e;
+            min-width: 28px;
+            font-weight: 600;
+        }
+
+        .log-set-input {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e6edf3;
+            font-size: 1rem;
+            padding: 10px 12px;
+            width: 80px;
+            min-height: 44px;
+            outline: none;
+            text-align: center;
+        }
+
+        .log-set-input:focus {
+            border-color: #58a6ff;
+        }
+
+        .log-set-input.has-value {
+            border-color: #238636;
+        }
+
+        .log-add-set-btn {
+            background-color: transparent;
+            border: 1px dashed #30363d;
+            border-radius: 8px;
+            color: #58a6ff;
+            font-size: 0.8rem;
+            padding: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+            width: 100%;
+            min-height: 40px;
+        }
+
+        /* Layout Riposo */
+        .rest-day {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .rest-emoji {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .rest-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #e6edf3;
+            margin-bottom: 8px;
+        }
+
+        .rest-subtitle {
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+
+        /* Sezione Esercizi (Database) */
+        #db-filter-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        #db-filter-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .db-filter-btn {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            min-height: 36px;
+            transition: all 0.2s ease;
+        }
+
+        .db-filter-btn.active {
+            background-color: #58a6ff;
+            color: #0d1117;
+            border-color: #58a6ff;
+        }
+
+        .db-exercise-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .db-card-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #0d1117;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .db-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .db-card-body {
+            padding: 16px;
+        }
+
+        .db-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .db-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e6edf3;
+        }
+
+        .db-card-stats {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        .db-toggle-desc-btn {
+            background-color: transparent;
+            border: none;
+            color: #58a6ff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 6px 0;
+            margin-top: 6px;
+        }
+
+        .db-card-desc {
+            display: none;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #8b949e;
+        }
+
+        /* Sezione Statistiche */
+        .stats-period-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        .stats-tab {
+            flex: 1;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: none;
+            padding: 12px 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 44px;
+        }
+
+        .stats-tab.active {
+            background-color: #58a6ff;
+            color: #0d1117;
+        }
+
+        #stats-summary {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stats-card {
+            flex: 1;
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stats-card-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #58a6ff;
+        }
+
+        .stats-card-label {
+            font-size: 0.7rem;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        #stats-chart {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 440 / 260;
+            background-color: #161b22;
+            border-radius: 10px;
+            border: 1px solid #21262d;
+        }
+
+        #stats-details {
+            margin-top: 16px;
+        }
+
+        .stats-day-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #21262d;
+            font-size: 0.85rem;
+        }
+
+        .stats-day-date {
+            color: #8b949e;
+        }
+
+        .stats-day-value {
+            color: #e6edf3;
+            font-weight: 600;
+        }
+
+        .stats-day-value.no-data {
+            color: #484f58;
+            font-style: italic;
+        }
+
+    /* immagine in testa alle card del Programma */
+    .exercise-card-image {
+        width: 100%;
+        aspect-ratio: 2 / 1;
+        background-color: #0d1117;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 12px;
+    }
+    .exercise-card-image img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: contain; 
+        display: block; 
+    }
+
+    /* pulsanti giorno su due righe (abbr + numero) */
+    .day-btn { flex-direction: column; gap: 2px; }
+    .day-num { font-size: 0.7rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <h1>💪 Il mio Allenamento</h1>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="programma" onclick="switchTab('programma')">🗓 Programma</button>
+        <button class="nav-tab" data-tab="esercizi" onclick="switchTab('esercizi')">📖 Esercizi</button>
+        <button class="nav-tab" data-tab="statistiche" onclick="switchTab('statistiche')">📊 Statistiche</button>
+    </div>
+
+    <div id="programma-section">
+        <div class="days-container" id="days-container">
+            <!-- Bottoni generati dinamicamente via JS -->
+        </div>
+
+        <div id="steps-section">
+            <h3>🦶 Passi di Oggi</h3>
+            <div class="steps-input-row">
+                <input type="number" id="steps-input" placeholder="Inserisci i passi..." min="0" max="99999" inputmode="numeric">
+                <button id="steps-save-btn" onclick="saveSteps()">✓</button>
+            </div>
+            <div id="steps-display" style="display:none;">
+                <span id="steps-value">0</span> passi
+                <button id="steps-edit-btn" onclick="editSteps()">✏️</button>
+            </div>
+        </div>
+
+        <div id="workout-container" style="display:none;">
+            <div id="day-header">
+                <h2 id="day-title"></h2>
+                <p id="day-subtitle"></p>
+            </div>
+            <div id="exercises-list"></div>
+        </div>
+    </div>
+
+    <div id="esercizi-section" style="display:none;">
+        <div id="db-filter-container">
+            <button class="db-filter-btn active" data-filter="tutti" onclick="filterExercises('tutti')">Tutti</button>
+            <button class="db-filter-btn" data-filter="Petto" onclick="filterExercises('Petto')">Petto</button>
+            <button class="db-filter-btn" data-filter="Bicipiti" onclick="filterExercises('Bicipiti')">Bicipiti</button>
+            <button class="db-filter-btn" data-filter="Tricipiti" onclick="filterExercises('Tricipiti')">Tricipiti</button>
+            <button class="db-filter-btn" data-filter="Spalle" onclick="filterExercises('Spalle')">Spalle</button>
+            <button class="db-filter-btn" data-filter="Dorso" onclick="filterExercises('Dorso')">Dorso</button>
+            <button class="db-filter-btn" data-filter="Core" onclick="filterExercises('Core')">Core</button>
+            <button class="db-filter-btn" data-filter="Gambe" onclick="filterExercises('Gambe')">Gambe</button>
+            <button class="db-filter-btn" data-filter="Glutei" onclick="filterExercises('Glutei')">Glutei</button>
+        </div>
+        <p id="db-count" style="font-size: 0.8rem; color: #8b949e; margin-bottom: 12px;"></p>
+        <div id="db-exercises-list"></div>
+    </div>
+
+    <div id="statistiche-section" style="display:none;">
+        <div class="stats-period-tabs">
+            <button class="stats-tab active" data-period="settimana" onclick="switchStatsPeriod('settimana')">Ultimi 7 giorni</button>
+            <button class="stats-tab" data-period="mese" onclick="switchStatsPeriod('mese')">Ultimi 30 giorni</button>
+        </div>
+        <div id="stats-summary"></div>
+        <canvas id="stats-chart" width="440" height="260"></canvas>
+        <div id="stats-details"></div>
+    </div>
+
+    <script>
+        const EXERCISES = {
+            // Petto
+            "floor_press": { id: "floor_press", name: "Dumbbell Floor Press", muscleGroup: "Petto", sets: 4, reps: "10-12", description: "Disteso sulla schiena sul tappetino, spingi i manubri verso l'alto estendendo le braccia. I tricipiti toccano terra a ogni ripetizione in modo controllato." },
+            "floor_flyes": { id: "floor_flyes", name: "Dumbbell Floor Flyes", muscleGroup: "Petto", sets: 3, reps: "12-15", description: "Croci a terra. Disteso supino sul tappetino, braccia leggermente piegate, apri i manubri lateralmente descrivendo un ampio arco finché i gomiti e i tricipiti sfiorano il terreno." },
+            "push_ups": { id: "push_ups", name: "Push-ups", muscleGroup: "Petto", sets: 3, reps: "15-20", description: "Classici piegamenti sulle braccia eseguiti sul tappetino. Mantieni il core compatto, il corpo allineato dalle spalle ai piedi e scendi portando il petto vicino al pavimento." },
+            "decline_push_ups": { id: "decline_push_ups", name: "Decline Push-ups", muscleGroup: "Petto", sets: 3, reps: "10-15", description: "Piegamenti sulle braccia con i piedi sollevati e appoggiati sulla sedia, mani a terra sul tappetino. Focus sulla parte alta del petto (deltoide anteriore e clavicolare)." },
+            "incline_push_ups": { id: "incline_push_ups", name: "Incline Push-ups", muscleGroup: "Petto", sets: 3, reps: "15-20", description: "Piegamenti sulle braccia con le mani appoggiate sul bordo della sedia e i piedi a terra sul tappetino. Variante più leggera con focus sulla parte inferiore del petto." },
+            // Bicipiti
+            "bicep_curl": { id: "bicep_curl", name: "Dumbbell Bicep Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Flessione delle braccia in piedi o seduti sulla sedia, eseguendo una supinazione (rotazione del polso verso l'esterno) durante la fase di salita." },
+            "hammer_curl": { id: "hammer_curl", name: "Dumbbell Hammer Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Curl a martello. Flessione delle braccia mantenendo i palmi delle mani sempre rivolti l'uno verso l'altro (presa neutra) durante tutto il movimento." },
+            "concentration_curl": { id: "concentration_curl", name: "Seated Concentration Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Seduto sulla sedia con il busto flesso in avanti. Appoggia il gomito all'interno della coscia per bloccarlo e isolare completamente il bicipite durante la contrazione." },
+            "alternating_curl": { id: "alternating_curl", name: "Alternating Dumbbell Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Curl classico eseguito alternando in modo fluido il braccio destro e il braccio sinistro a ogni ripetizione." },
+            // Tricipiti
+            "chair_dips": { id: "chair_dips", name: "Chair Dips", muscleGroup: "Tricipiti", sets: 3, reps: "10-15", description: "Mani appoggiate sul bordo della sedia, bacino molto vicino alla struttura, gambe distese o piegate a terra. Scendi flettendo i gomiti fino a circa 90° e spingi verso l'alto." },
+            "overhead_extension": { id: "overhead_extension", name: "Dumbbell Overhead Triceps Extension", muscleGroup: "Tricipiti", sets: 3, reps: "10-12", description: "Estensioni dietro la nuca. Seduto sulla sedia o in piedi, afferra un manubrio sopra la testa. Fletti i gomiti per far scendere il peso dietro la nuca, poi distendi di nuovo verso l'alto." },
+            "tricep_kickback": { id: "tricep_kickback", name: "Dumbbell Tricep Kickback", muscleGroup: "Tricipiti", sets: 3, reps: "10-12", description: "Busto flesso in avanti quasi parallelo al pavimento. Mantieni il braccio adeso al fianco e il gomito alto e immobile; estendi completamente l'avambraccio all'indietro." },
+            "skullcrusher": { id: "skullcrusher", name: "Lying Triceps Extension (Skullcrusher)", muscleGroup: "Tricipiti", sets: 3, reps: "10-12", description: "Disteso supino sul tappetino, braccia verticali perpendicolari al corpo. Fletti solo gli avambracci portando i manubri ai lati della testa, poi estendi nuovamente isolando i tricipiti." },
+            // Spalle
+            "overhead_press": { id: "overhead_press", name: "Seated Dumbbell Overhead Press", muscleGroup: "Spalle", sets: 4, reps: "8-10", description: "Spinte verticali. Seduto sulla sedia con la schiena ben dritta, spingi i manubri verso l'alto partendo dall'altezza delle spalle fino a distendere le braccia." },
+            "lateral_raises": { id: "lateral_raises", name: "Dumbbell Lateral Raises", muscleGroup: "Spalle", sets: 3, reps: "12-15", description: "Alzate laterali. In piedi, solleva i manubri lateralmente fino all'altezza delle spalle, mantenendo una leggera flessione del gomito e i mignoli leggermente ruotati verso l'alto." },
+            "front_raises": { id: "front_raises", name: "Dumbbell Front Raises", muscleGroup: "Spalle", sets: 3, reps: "10-12", description: "Alzate frontali. In piedi, solleva i manubri tesi in avanti alternandoli o contemporaneamente, fino all'altezza degli occhi." },
+            "rear_delt_flyes": { id: "rear_delt_flyes", name: "Bent-Over Rear Delt Flyes", muscleGroup: "Spalle", sets: 3, reps: "12-15", description: "Aperture posteriori. Busto flesso in avanti a circa 45 gradi, solleva i manubri lateralmente spingendo indietro i gomiti per allenare i deltoidi posteriori." },
+            // Dorso
+            "one_arm_row": { id: "one_arm_row", name: "One-Arm Dumbbell Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore singolo. Appoggia un ginocchio e la mano corrispondente sulla sedia per darti stabilità. Con l'altro braccio, tira il manubrio verso il fianco portando il gomito in alto e indietro." },
+            "bent_over_row": { id: "bent_over_row", name: "Dumbbell Bent-Over Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore bilaterale. In piedi con il busto flesso in avanti a 45° e ginocchia leggermente piegate. Tira entrambi i manubri contemporaneamente verso la pancia mantenendo i gomiti stretti." },
+            "pullover": { id: "pullover", name: "Dumbbell Pullover", muscleGroup: "Dorso", sets: 3, reps: "10-12", description: "Disteso sulla schiena sul tappetino, tieni un manubrio sopra il petto con braccia quasi tese. Porta il manubrio lentamente all'indietro oltre la testa sfiorando il pavimento, poi ritorna su contraendo il dorso." },
+            "superman": { id: "superman", name: "Superman", muscleGroup: "Dorso", sets: 3, reps: "12-15", description: "Disteso a pancia in giù sul tappetino, solleva contemporaneamente il petto, le braccia e le gambe contraendo la bassa schiena (lombari) e i glutei. Mantieni la posizione per un secondo." },
+            // Core
+            "crunches": { id: "crunches", name: "Crunches", muscleGroup: "Core", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino con le ginocchia piegate e i piedi a terra. Solleva solo la parte superiore della schiena e le scapole, concentrando la contrazione sull'addome." },
+            "plank": { id: "plank", name: "Plank", muscleGroup: "Core", sets: 3, reps: "30-60 sec", description: "Tenuta isometrica. Appoggia gli avambracci e le punte dei piedi sul tappetino. Mantieni il corpo perfettamente in linea come una tavola, attivando addome e glutei." },
+            "russian_twists": { id: "russian_twists", name: "Russian Twists", muscleGroup: "Core", sets: 3, reps: "20 (10+10)", description: "Seduto sul tappetino, busto inclinato all'indietro a 45 gradi. Ruota il torace e le spalle da un lato all'altro in modo controllato (opzionale: impugna un manubrio per aumentare il carico)." },
+            "leg_raises": { id: "leg_raises", name: "Leg Raises", muscleGroup: "Core", sets: 3, reps: "12-15", description: "Sollevamento gambe. Disteso supino sul tappetino, solleva le gambe tese insieme fino a formare un angolo di 90°, poi scendi lentamente senza toccare terra per mantenere la tensione." },
+            // Gambe
+            "bulgarian_split_squat": { id: "bulgarian_split_squat", name: "Bulgarian Split Squat", muscleGroup: "Gambe", sets: 4, reps: "10-12 per gamba", description: "Squat bulgaro. Posiziona un piede all'indietro in appoggio stabile sulla sedia e l'altro in avanti a terra. Scendi in affondo verticale mantenendo il busto dritto e impugnando i manubri." },
+            "chair_step_ups": { id: "chair_step_ups", name: "Chair Step-Ups", muscleGroup: "Gambe", sets: 3, reps: "10-12 per gamba", description: "Salite sulla sedia. Posizionati in piedi di fronte alla sedia con i manubri in mano. Sali sulla sedia con un piede spingendo con la gamba, solleva tutto il corpo e riscendi in modo controllato." },
+            "goblet_squat": { id: "goblet_squat", name: "Dumbbell Goblet Squat", muscleGroup: "Gambe", sets: 4, reps: "12-15", description: "Squat classico tenendo un singolo manubrio in verticale davanti al petto stretto tra le mani. Scendi con il bacino rompendo il parallelo (puoi usare la sedia dietro di te come riferimento di profondità)." },
+            // Glutei
+            "glute_bridge": { id: "glute_bridge", name: "Dumbbell Glute Bridge", muscleGroup: "Glutei", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino con le ginocchia piegate e i piedi a terra. Posiziona un manubrio all'altezza del bacino. Solleva il bacino contraendo i glutei fino a formare una linea retta tra ginocchia, bacino e spalle." },
+            "sumo_squat": { id: "sumo_squat", name: "Dumbbell Sumo Squat", muscleGroup: "Glutei", sets: 4, reps: "12-15", description: "In piedi con le gambe divaricate oltre la larghezza delle spalle e le punte dei piedi rivolte verso l'esterno. Impugna un manubrio con entrambe le mani al centro. Scendi in squat spingendo le ginocchia in fuori, mantenendo il busto dritto, poi risali contraendo i glutei." },
+            "frog_glute_bridge": { id: "frog_glute_bridge", name: "Frog Glute Bridge", muscleGroup: "Glutei", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino. Unisci le piante dei piedi lasciando cadere le ginocchia verso l'esterno a farfalla. Posiziona un manubrio sul bacino e solleva il bacino da terra contraendo i glutei." }
+        };
+
+        const SCHEDULE = {
+  "2026-06-26": [
+    { id: "floor_press", sets: "", reps: "" },
+    { id: "floor_flyes", sets: "", reps: "" },
+    { id: "pullover",    sets: "", reps: "" },
+    { id: "one_arm_row", sets: "", reps: "" },
+  ],
+  "2026-06-27": [
+    { id: "russian_twists", sets: "", reps: "" },
+    { id: "leg_raises",     sets: "", reps: "" },
+    { id: "glute_bridge",   sets: "", reps: "" },
+    { id: "sumo_squat",     sets: "", reps: "" },
+    { id: "tricep_kickback",sets: "", reps: "" },
+    { id: "skullcrusher",   sets: "", reps: "" },
+    { id: "overhead_press", sets: "", reps: "" },
+    { id: "lateral_raises", sets: "", reps: "" },
+  ],
+  "2026-06-28": [
+    { id: "bicep_curl",        sets: "", reps: "" },
+    { id: "hammer_curl",       sets: "", reps: "" },
+    { id: "concentration_curl",sets: "", reps: "" },
+    { id: "alternating_curl",  sets: "", reps: "" },
+  ],
+  "2026-06-29": [
+    { id: "goblet_squat",   sets: "", reps: "" },
+    { id: "russian_twists", sets: "", reps: "" },
+    { id: "leg_raises",     sets: "", reps: "" },
+  ],
+  "2026-06-30": [
+    { id: "bicep_curl",        sets: "", reps: "" },
+    { id: "hammer_curl",       sets: "", reps: "" },
+    { id: "concentration_curl",sets: "", reps: "" },
+    { id: "alternating_curl",  sets: "", reps: "" },
+  ],
+  "2026-07-01": [
+    { id: "overhead_press", sets: "", reps: "" },
+    { id: "lateral_raises", sets: "", reps: "" },
+    { id: "front_raises",   sets: "", reps: "" },
+  ],
+  "2026-07-02": [
+    { id: "goblet_squat",   sets: "", reps: "" },
+    { id: "russian_twists", sets: "", reps: "" },
+    { id: "leg_raises",     sets: "", reps: "" },
+  ],
+  "2026-07-03": [
+    { id: "bicep_curl",        sets: "", reps: "" },
+    { id: "hammer_curl",       sets: "", reps: "" },
+    { id: "concentration_curl",sets: "", reps: "" },
+    { id: "alternating_curl",  sets: "", reps: "" },
+  ],
+  "2026-07-04": [
+    { id: "russian_twists", sets: "", reps: "" },
+    { id: "leg_raises",     sets: "", reps: "" },
+    { id: "glute_bridge",   sets: "", reps: "" },
+    { id: "sumo_squat",     sets: "", reps: "" },
+  ],
+};
+
+        let selectedDate = '';
+
+        // Data ISO YYYY-MM-DD in fuso LOCALE (NON usare toISOString che è UTC e può sfasare il giorno)
+        function toISO(d) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${y}-${m}-${day}`;
+        }
+
+        const WEEKDAY_NAMES = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+        const MONTH_NAMES = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+        function renderDayButtons() {
+          const container = document.getElementById('days-container');
+          container.innerHTML = '';
+          const abbr = ['LUN','MAR','MER','GIO','VEN','SAB','DOM'];
+          const today = new Date();
+          const todayISO = toISO(today);
+          // lunedì di questa settimana
+          const monday = new Date(today);
+          monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const iso = toISO(d);
+            const btn = document.createElement('button');
+            btn.className = 'day-btn';
+            btn.dataset.date = iso;
+            if (iso === todayISO) btn.classList.add('today');
+            if (!SCHEDULE[iso]) btn.classList.add('rest'); // giorno senza programma = stile tenue
+            btn.innerHTML = `${abbr[i]}<br><span class="day-num">${d.getDate()}</span>`;
+            btn.onclick = () => selectDate(iso);
+            container.appendChild(btn);
+          }
+        }
+
+        // Funzioni tab e navigazione
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
+
+            document.getElementById('programma-section').style.display = 'none';
+            document.getElementById('esercizi-section').style.display = 'none';
+            document.getElementById('statistiche-section').style.display = 'none';
+
+            document.getElementById(`${tabName}-section`).style.display = 'block';
+
+            if (tabName === 'esercizi') {
+                renderExerciseDatabase('tutti');
+            } else if (tabName === 'statistiche') {
+                renderStatistiche();
+            }
+        }
+
+        // Programma e giorni
+        function selectDate(iso) {
+          selectedDate = iso;
+          document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active')); // NON togliere .today
+          const btn = document.querySelector(`.day-btn[data-date="${iso}"]`);
+          if (btn) btn.classList.add('active');
+
+          document.getElementById('workout-container').style.display = 'block';
+
+          const d = new Date(iso + 'T12:00:00');
+          document.getElementById('day-title').textContent =
+            `${WEEKDAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+
+          const list = document.getElementById('exercises-list');
+          list.innerHTML = '';
+
+          const dayExercises = SCHEDULE[iso];
+          if (!dayExercises || dayExercises.length === 0) {
+            document.getElementById('day-subtitle').textContent = '';
+            list.innerHTML = `
+              <div class="rest-day">
+                <div class="rest-emoji">😌</div>
+                <p class="rest-title">Nessun allenamento</p>
+                <p class="rest-subtitle">Giorno non programmato.</p>
+              </div>`;
+            return;
+          }
+
+          // sottotitolo auto-derivato dai gruppi muscolari del giorno
+          const groups = [...new Set(
+            dayExercises.map(it => EXERCISES[it.id] && EXERCISES[it.id].muscleGroup).filter(Boolean)
+          )];
+          document.getElementById('day-subtitle').textContent = groups.join(' + ');
+
+          const log = getWorkoutLog();
+          dayExercises.forEach(item => {
+            const exercise = EXERCISES[item.id];
+            if (!exercise) return;
+
+            const sets = item.sets || exercise.sets;   // fallback ai default finché l'utente non compila
+            const reps = item.reps || exercise.reps;
+            const targetSets = parseInt(sets) || exercise.sets;
+
+            const badgeClass = `badge-${exercise.muscleGroup.toLowerCase()}`;
+            let repsText = `${sets} serie × ${reps}`;
+            if (!String(reps).includes('sec') && !String(reps).includes('per gamba')) repsText += ' rip.';
+
+            const savedSets = (log[selectedDate] && log[selectedDate][exercise.id]) ? log[selectedDate][exercise.id].sets : [];
+            const numInputs = Math.max(targetSets, savedSets.length);
+
+            let setsHtml = '';
+            for (let i = 0; i < numInputs; i++) {
+              const value = savedSets[i] || '';
+              const hasValue = value ? ' has-value' : '';
+              setsHtml += `
+                <div class="log-set-row">
+                  <span class="log-set-label">S${i+1}</span>
+                  <input type="number" class="log-set-input${hasValue}" inputmode="numeric"
+                         placeholder="rip." min="0" max="999" value="${value}"
+                         onblur="saveExerciseLog('${exercise.id}')"
+                         onkeydown="if(event.key==='Enter'){this.blur()}"
+                         oninput="this.classList.toggle('has-value', this.value !== ''); updateExerciseProgress(this.closest('.workout-log-section'));">
+                </div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+            card.innerHTML = `
+              <div class="exercise-card-image"><img src="immagini/${exercise.id}.png" alt="${exercise.name}"></div>
+              <div class="exercise-header">
+                <span class="exercise-name">${exercise.name}</span>
+                <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
+              </div>
+              <div class="exercise-sets">${repsText}</div>
+              <button class="toggle-desc-btn" onclick="toggleDescription(this)">Mostra dettagli ▼</button>
+              <div class="exercise-desc">${exercise.description}</div>
+              <div class="workout-log-section" data-exercise-id="${exercise.id}" data-target-sets="${targetSets}">
+                <div class="log-header">
+                  <span class="log-title">📝 Serie eseguite</span>
+                  <span class="log-progress"></span>
+                </div>
+                <div class="log-sets-container">${setsHtml}</div>
+                <button class="log-add-set-btn" onclick="addSetInput(this)">+ Aggiungi serie</button>
+              </div>`;
+            list.appendChild(card);
+            updateExerciseProgress(card.querySelector('.workout-log-section'));
+          });
+        }
+
+        function toggleDescription(btn) {
+            const desc = btn.nextElementSibling;
+            if (desc.style.display === 'none' || desc.style.display === '') {
+                desc.style.display = 'block';
+                btn.textContent = 'Nascondi dettagli ▲';
+            } else {
+                desc.style.display = 'none';
+                btn.textContent = 'Mostra dettagli ▼';
+            }
+        }
+
+        // Passi
+        function getStepsHistory() {
+            const data = localStorage.getItem('steps_history');
+            return data ? JSON.parse(data) : {};
+        }
+
+        function saveSteps() {
+            const input = document.getElementById('steps-input');
+            const value = parseInt(input.value);
+            
+            if (isNaN(value) || value <= 0) return;
+
+            document.querySelector('.steps-input-row').style.display = 'none';
+            document.getElementById('steps-display').style.display = 'block';
+            document.getElementById('steps-value').textContent = value.toLocaleString('it-IT');
+            
+            const today = new Date().toISOString().split('T')[0];
+            const history = getStepsHistory();
+            history[today] = value;
+            localStorage.setItem('steps_history', JSON.stringify(history));
+        }
+
+        function editSteps() {
+            document.getElementById('steps-display').style.display = 'none';
+            document.querySelector('.steps-input-row').style.display = 'flex';
+        }
+
+        document.getElementById('steps-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                saveSteps();
+            }
+        });
+
+        // Workout Log
+        function getWorkoutLog() {
+            const data = localStorage.getItem('workout_log');
+            return data ? JSON.parse(data) : {};
+        }
+
+        function updateExerciseProgress(section) {
+            const targetSets = parseInt(section.dataset.targetSets) || 0;
+            const inputs = section.querySelectorAll('.log-set-input');
+            let compilate = 0;
+            inputs.forEach(input => {
+                const val = parseInt(input.value);
+                if (!isNaN(val) && val > 0) compilate++;
+            });
+            
+            const progressSpan = section.querySelector('.log-progress');
+            if (progressSpan) {
+                progressSpan.textContent = `${compilate}/${targetSets}`;
+                if (compilate >= targetSets && targetSets > 0) {
+                    progressSpan.classList.add('done');
+                } else {
+                    progressSpan.classList.remove('done');
+                }
+            }
+            
+            const card = section.closest('.exercise-card');
+            if (card) {
+                if (compilate >= targetSets && targetSets > 0) {
+                    card.classList.add('completed');
+                } else {
+                    card.classList.remove('completed');
+                }
+            }
+        }
+
+        function saveExerciseLog(exerciseId) {
+          const log = getWorkoutLog();
+          if (!log[selectedDate]) log[selectedDate] = {};
+
+          const section = document.querySelector(`.workout-log-section[data-exercise-id="${exerciseId}"]`);
+          const inputs = section.querySelectorAll('.log-set-input');
+          const sets = [];
+          inputs.forEach(input => {
+            const val = parseInt(input.value);
+            if (!isNaN(val) && val > 0) sets.push(val);
+          });
+
+          if (sets.length > 0) log[selectedDate][exerciseId] = { sets: sets };
+          else delete log[selectedDate][exerciseId];
+
+          localStorage.setItem('workout_log', JSON.stringify(log));
+        }
+
+        function addSetInput(btn) {
+            const container = btn.previousElementSibling;
+            const section = btn.closest('.workout-log-section');
+            const exerciseId = section.dataset.exerciseId;
+            const count = container.children.length + 1;
+            
+            const row = document.createElement('div');
+            row.className = 'log-set-row';
+            row.innerHTML = `
+                <span class="log-set-label">S${count}</span>
+                <input type="number" class="log-set-input" inputmode="numeric" 
+                       placeholder="rip." min="0" max="999"
+                       onblur="saveExerciseLog('${exerciseId}')" 
+                       onkeydown="if(event.key==='Enter'){this.blur()}"
+                       oninput="this.classList.toggle('has-value', this.value !== ''); updateExerciseProgress(this.closest('.workout-log-section'));">
+            `;
+            container.appendChild(row);
+        }
+
+        // Database Esercizi
+        function filterExercises(gruppo) {
+            document.querySelectorAll('.db-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.db-filter-btn[data-filter="${gruppo}"]`).classList.add('active');
+            renderExerciseDatabase(gruppo);
+        }
+
+        function renderExerciseDatabase(filtro) {
+            const container = document.getElementById('db-exercises-list');
+            container.innerHTML = '';
+
+            const exerciseKeys = Object.keys(EXERCISES);
+            let count = 0;
+
+            exerciseKeys.forEach(key => {
+                const exercise = EXERCISES[key];
+
+                if (filtro && filtro !== 'tutti' && exercise.muscleGroup !== filtro) return;
+                
+                count++;
+                const badgeClass = `badge-${exercise.muscleGroup.toLowerCase()}`;
+
+                let repsText = `${exercise.sets} serie × ${exercise.reps}`;
+                if (!exercise.reps.includes("sec") && !exercise.reps.includes("per gamba")) {
+                    repsText += " rip.";
+                }
+
+                const card = document.createElement('div');
+                card.className = 'db-exercise-card';
+                card.innerHTML = `
+                    <div class="db-card-image">
+                        <img src="immagini/${exercise.id}.png" alt="${exercise.name}" 
+>
+                    </div>
+                    <div class="db-card-body">
+                        <div class="db-card-header">
+                            <h3 class="db-card-title">${exercise.name}</h3>
+                            <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
+                        </div>
+                        <div class="db-card-stats">${repsText}</div>
+                        <button class="db-toggle-desc-btn" onclick="toggleDbDescription(this)">Mostra dettagli ▼</button>
+                        <div class="db-card-desc">${exercise.description}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            document.getElementById('db-count').textContent = `${count} esercizi trovati`;
+        }
+
+        function toggleDbDescription(btn) {
+            const desc = btn.nextElementSibling;
+            if (desc.style.display === 'none' || desc.style.display === '') {
+                desc.style.display = 'block';
+                btn.textContent = 'Nascondi dettagli ▲';
+            } else {
+                desc.style.display = 'none';
+                btn.textContent = 'Mostra dettagli ▼';
+            }
+        }
+
+        // Statistiche
+        function renderStatistiche() {
+            switchStatsPeriod('settimana');
+        }
+
+        function switchStatsPeriod(period) {
+            document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.stats-tab[data-period="${period}"]`).classList.add('active');
+            
+            const history = getStepsHistory();
+            const days = period === 'settimana' ? 7 : 30;
+            const dates = [];
+            const today = new Date();
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                dates.push(d.toISOString().split('T')[0]);
+            }
+            
+            const values = dates.map(d => history[d] || 0);
+            const filledValues = values.filter(v => v > 0);
+            const total = filledValues.reduce((a, b) => a + b, 0);
+            const avg = filledValues.length > 0 ? Math.round(total / filledValues.length) : 0;
+            
+            document.getElementById('stats-summary').innerHTML = `
+                <div class="stats-card">
+                    <div class="stats-card-value">${total.toLocaleString('it-IT')}</div>
+                    <div class="stats-card-label">Totale passi</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-card-value">${avg.toLocaleString('it-IT')}</div>
+                    <div class="stats-card-label">Media giornaliera</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-card-value">${filledValues.length}/${days}</div>
+                    <div class="stats-card-label">Giorni registrati</div>
+                </div>
+            `;
+            
+            drawBarChart(dates, values, period);
+            
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+            let detailsHtml = '';
+            
+            if (filledValues.length === 0) {
+                detailsHtml = `
+                    <div style="text-align:center; padding:32px 16px; color:#8b949e;">
+                      <div style="font-size:2.5rem; margin-bottom:12px;">📊</div>
+                      <p style="font-size:0.95rem;">Nessun passo registrato in questo periodo.</p>
+                      <p style="font-size:0.85rem; margin-top:4px;">Salva i tuoi passi dal tab Programma per vederli qui.</p>
+                    </div>
+                `;
+            } else {
+                for (let i = dates.length - 1; i >= 0; i--) {
+                    const d = new Date(dates[i] + 'T12:00:00');
+                    const dayLabel = `${dayNames[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+                    const val = values[i];
+                    if (val > 0) {
+                        detailsHtml += `<div class="stats-day-row"><span class="stats-day-date">${dayLabel}</span><span class="stats-day-value">${val.toLocaleString('it-IT')} passi</span></div>`;
+                    } else {
+                        detailsHtml += `<div class="stats-day-row"><span class="stats-day-date">${dayLabel}</span><span class="stats-day-value no-data">—</span></div>`;
+                    }
+                }
+            }
+            document.getElementById('stats-details').innerHTML = detailsHtml;
+        }
+
+        function drawBarChart(dates, values, period) {
+            const canvas = document.getElementById('stats-chart');
+            const ctx = canvas.getContext('2d');
+            
+            const rect = canvas.getBoundingClientRect();
+            // Evita errore se il canvas non è visibile
+            if (rect.width === 0) return;
+            
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            
+            const W = rect.width;
+            const H = rect.height;
+            const padding = { top: 20, right: 12, bottom: 40, left: 12 };
+            const chartW = W - padding.left - padding.right;
+            const chartH = H - padding.top - padding.bottom;
+            
+            ctx.clearRect(0, 0, W, H);
+            
+            const maxVal = Math.max(...values, 1000);
+            const barCount = values.length;
+            const barWidth = chartW / barCount * 0.7;
+            const barGap = chartW / barCount * 0.3;
+            
+            values.forEach((val, i) => {
+                const barH = (val / maxVal) * chartH;
+                const x = padding.left + i * (chartW / barCount) + barGap / 2;
+                const y = padding.top + chartH - barH;
+                
+                ctx.fillStyle = val > 0 ? '#58a6ff' : '#21262d';
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(x, y, barWidth, barH, [4, 4, 0, 0]);
+                } else {
+                    ctx.rect(x, y, barWidth, barH);
+                }
+                ctx.fill();
+            });
+            
+            ctx.fillStyle = '#8b949e';
+            ctx.font = `${period === 'settimana' ? 11 : 8}px -apple-system, sans-serif`;
+            ctx.textAlign = 'center';
+            
+            const dayAbbr = ['D', 'L', 'M', 'Me', 'G', 'V', 'S'];
+            dates.forEach((date, i) => {
+                const d = new Date(date + 'T12:00:00');
+                const x = padding.left + i * (chartW / barCount) + (chartW / barCount) / 2;
+                const label = period === 'settimana' 
+                    ? dayAbbr[d.getDay()] 
+                    : `${d.getDate()}`;
+                ctx.fillText(label, x, H - padding.bottom + 16);
+            });
+        }
+
+        // Setup iniziale
+        document.addEventListener('DOMContentLoaded', () => {
+          renderDayButtons();
+          selectDate(toISO(new Date()));
+
+          // --- passi: logica INVARIATA (resta legata a oggi) ---
+          const today = new Date().toISOString().split('T')[0];
+          const stepsHistory = getStepsHistory();
+          if (stepsHistory[today]) {
+            document.querySelector('.steps-input-row').style.display = 'none';
+            document.getElementById('steps-display').style.display = 'block';
+            document.getElementById('steps-value').textContent = stepsHistory[today].toLocaleString('it-IT');
+          }
+        });
+    </script>
+</body>
+</html>

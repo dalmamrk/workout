@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/^## ✍️/{c++} c>=8' istruzioni_agente.md)"
+    ]
+  }
+}
