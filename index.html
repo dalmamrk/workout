@@ -783,6 +783,92 @@
 
         let selectedDate = '';
 
+        /* =========================================================
+           SINCRONIZZAZIONE CLOUD (Supabase)
+           localStorage resta la cache locale (l'app funziona offline);
+           Supabase è lo strato di sync tra dispositivi.
+           Codice di sync FISSO: tutti i dispositivi che aprono questa
+           URL condividono gli stessi dati, senza alcuna azione utente.
+           ========================================================= */
+        const SB_URL = "https://rvckscsahnswceiajqve.supabase.co";
+        const SB_KEY = "sb_publishable_5w1S1F7BX9yndp4vy0-vFw_s4h8jd0l";
+        const SYNC_CODE = "workout-sync-8f3a7c21d9e4";
+        const SB_HEADERS = {
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + SB_KEY,
+            'Content-Type': 'application/json'
+        };
+
+        function localData() {
+            return { steps_history: getStepsHistory(), workout_log: getWorkoutLog() };
+        }
+        function applyData(d) {
+            localStorage.setItem('steps_history', JSON.stringify(d.steps_history || {}));
+            localStorage.setItem('workout_log', JSON.stringify(d.workout_log || {}));
+        }
+        // Unione non distruttiva: "over" vince sui conflitti, ma le chiavi disgiunte si conservano
+        function mergeData(base, over) {
+            base = base || {}; over = over || {};
+            const wl = { ...(base.workout_log || {}) };
+            const oWl = over.workout_log || {};
+            for (const date in oWl) wl[date] = { ...(wl[date] || {}), ...oWl[date] };
+            return {
+                steps_history: { ...(base.steps_history || {}), ...(over.steps_history || {}) },
+                workout_log: wl
+            };
+        }
+
+        async function cloudFetch() {
+            const r = await fetch(`${SB_URL}/rest/v1/workout_sync?sync_code=eq.${SYNC_CODE}&select=data`, { headers: SB_HEADERS });
+            if (!r.ok) throw new Error('GET ' + r.status);
+            const rows = await r.json();
+            return rows.length ? rows[0].data : { steps_history: {}, workout_log: {} };
+        }
+
+        let cloudBusy = false, pushTimer = null;
+
+        async function cloudPull() {
+            // non disturbare l'editing in corso
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+            try {
+                const remote = await cloudFetch();
+                const merged = mergeData(localData(), remote); // il remoto vince in pull
+                applyData(merged);
+                rerenderCurrent();
+            } catch (e) { console.warn('cloudPull fallita (offline?):', e.message); }
+        }
+
+        async function cloudPush() {
+            if (cloudBusy) return;
+            cloudBusy = true;
+            try {
+                const remote = await cloudFetch();
+                const merged = mergeData(remote, localData()); // il locale vince in push (appena modificato)
+                applyData(merged);
+                await fetch(`${SB_URL}/rest/v1/workout_sync`, {
+                    method: 'POST',
+                    headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+                    body: JSON.stringify({ sync_code: SYNC_CODE, data: merged, updated_at: new Date().toISOString() })
+                });
+            } catch (e) { console.warn('cloudPush fallita (offline?):', e.message); }
+            finally { cloudBusy = false; }
+        }
+
+        function scheduleCloudPush() {
+            clearTimeout(pushTimer);
+            pushTimer = setTimeout(cloudPush, 800); // coalescenza di salvataggi ravvicinati
+        }
+
+        // Re-render della vista corrente dopo un pull
+        function rerenderCurrent() {
+            if (document.getElementById('statistiche-section').style.display === 'block') {
+                const period = (document.querySelector('.stats-tab.active') || {}).dataset?.period || 'settimana';
+                switchStatsPeriod(period);
+            } else if (selectedDate) {
+                selectDate(selectedDate);
+            }
+        }
+
         // Data ISO YYYY-MM-DD in fuso LOCALE (NON usare toISOString che è UTC e può sfasare il giorno)
         function toISO(d) {
           const y = d.getFullYear();
@@ -978,6 +1064,7 @@
             const history = getStepsHistory();
             history[selectedDate] = value;
             localStorage.setItem('steps_history', JSON.stringify(history));
+            scheduleCloudPush();
         }
 
         // Aggiorna la sezione passi in base al giorno selezionato
@@ -1060,6 +1147,7 @@
           else delete log[selectedDate][exerciseId];
 
           localStorage.setItem('workout_log', JSON.stringify(log));
+          scheduleCloudPush();
         }
 
         function addSetInput(btn) {
@@ -1276,6 +1364,12 @@
         document.addEventListener('DOMContentLoaded', () => {
           renderDayButtons();
           selectDate(toISO(new Date())); // selectDate aggiorna anche la sezione passi del giorno
+
+          // Sincronizzazione cloud: pull all'avvio + seed dei dati locali già presenti,
+          // poi poll periodico e pull al rientro sull'app
+          cloudPull().then(() => scheduleCloudPush());
+          setInterval(cloudPull, 20000);
+          document.addEventListener('visibilitychange', () => { if (!document.hidden) cloudPull(); });
         });
     </script>
 </body>
