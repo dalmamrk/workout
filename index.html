@@ -1292,10 +1292,18 @@
                     const dayLabel = `${dayNames[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
                     const val = values[i];
                     const wo = workoutLog[dstr];
-                    const nEx = wo ? Object.keys(wo).length : 0;
 
                     let right = '';
-                    if (nEx > 0) right += `<span class="stats-workout-badge">🏋️ ${nEx} eserc.</span>`;
+                    if (wo && Object.keys(wo).length > 0) {
+                        // conteggio esercizi loggati per gruppo muscolare (es. "2 Dorso, 3 Bicipiti")
+                        const counts = {};
+                        for (const exId in wo) {
+                            const g = EXERCISES[exId] ? EXERCISES[exId].muscleGroup : 'Altro';
+                            counts[g] = (counts[g] || 0) + 1;
+                        }
+                        const parts = Object.keys(counts).map(g => `${counts[g]} ${g}`).join(', ');
+                        right += `<span class="stats-workout-badge">🏋️ ${parts}</span>`;
+                    }
                     if (val > 0) right += `${val.toLocaleString('it-IT')} passi`;
                     if (!right) right = `<span class="no-data">—</span>`;
 
