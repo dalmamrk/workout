@@ -89,10 +89,14 @@
             text-align: center;
             min-height: 48px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 2px;
             position: relative;
         }
+
+        .day-num { font-size: 0.7rem; font-weight: 700; }
 
         .day-btn.today::after {
             content: '';
@@ -138,7 +142,7 @@
             padding: 16px 20px;
             margin-bottom: 24px;
         }
-        
+
         #steps-section h3 {
             margin: 0;
             font-size: 1rem;
@@ -217,12 +221,35 @@
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 12px;
+            border-left: 3px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .exercise-card.done {
+            border-left-color: #238636;
+        }
+
+        .exercise-card-image {
+            width: 100%;
+            aspect-ratio: 2 / 1;
+            background-color: #0d1117;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .exercise-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
         .exercise-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
         }
 
         .exercise-name {
@@ -231,12 +258,18 @@
             color: #e6edf3;
         }
 
+        .exercise-card.done .exercise-name {
+            text-decoration: line-through;
+            color: #8b949e;
+        }
+
         .muscle-badge {
             font-size: 0.65rem;
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 20px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         /* Colori Badge */
@@ -274,81 +307,52 @@
             color: #8b949e;
         }
 
-        /* Sezione Log */
-        .workout-log-section {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #21262d;
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .log-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #e6edf3;
-        }
-
-        .log-progress { font-size: 0.8rem; color: #8b949e; font-weight: 600; }
-        .log-progress.done { color: #56d364; }
-        .exercise-card.completed { border-left: 3px solid #238636; }
-
-        .log-sets-container {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .log-set-row {
+        /* Bottone "fatto" — target tap grande */
+        .done-btn {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-        }
-
-        .log-set-label {
-            font-size: 0.8rem;
-            color: #8b949e;
-            min-width: 28px;
-            font-weight: 600;
-        }
-
-        .log-set-input {
-            background-color: #0d1117;
+            width: 100%;
+            margin-top: 14px;
+            padding: 16px;
+            min-height: 56px;
+            background-color: #21262d;
+            color: #c9d1d9;
             border: 1px solid #30363d;
-            border-radius: 8px;
-            color: #e6edf3;
+            border-radius: 10px;
             font-size: 1rem;
-            padding: 10px 12px;
-            width: 80px;
-            min-height: 44px;
-            outline: none;
-            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
 
-        .log-set-input:focus {
-            border-color: #58a6ff;
+        .done-btn:active { transform: scale(0.98); }
+
+        .done-btn .check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #8b949e;
+            color: transparent;
+            font-size: 0.85rem;
+            line-height: 1;
+            transition: all 0.15s ease;
         }
 
-        .log-set-input.has-value {
+        .done-btn.done {
+            background-color: #238636;
+            color: #fff;
             border-color: #238636;
         }
 
-        .log-add-set-btn {
-            background-color: transparent;
-            border: 1px dashed #30363d;
-            border-radius: 8px;
-            color: #58a6ff;
-            font-size: 0.8rem;
-            padding: 8px;
-            margin-top: 8px;
-            cursor: pointer;
-            width: 100%;
-            min-height: 40px;
+        .done-btn.done .check {
+            background-color: #fff;
+            border-color: #fff;
+            color: #238636;
         }
 
         /* Layout Riposo */
@@ -502,7 +506,49 @@
             color: #0d1117;
         }
 
-        #stats-summary {
+        /* Card aderenza */
+        .adherence-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .adherence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .adherence-label {
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+
+        .adherence-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #58a6ff;
+        }
+
+        .adherence-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #21262d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .adherence-fill {
+            height: 100%;
+            background-color: #238636;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .stats-summary-row {
             display: flex;
             gap: 12px;
             margin-bottom: 16px;
@@ -539,84 +585,16 @@
             border: 1px solid #21262d;
         }
 
-        #stats-details {
-            margin-top: 16px;
-        }
-
-        .stats-day-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #21262d;
-            font-size: 0.85rem;
-        }
-
-        .stats-day-date {
+        .stats-empty {
+            text-align: center;
+            padding: 32px 16px;
             color: #8b949e;
         }
 
-        .stats-day-value {
-            color: #e6edf3;
-            font-weight: 600;
+        .stats-empty-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
         }
-
-        .stats-day-value.no-data {
-            color: #484f58;
-            font-style: italic;
-        }
-
-    /* immagine in testa alle card del Programma */
-    .exercise-card-image {
-        width: 100%;
-        aspect-ratio: 2 / 1;
-        background-color: #0d1117;
-        border-radius: 8px;
-        overflow: hidden;
-        margin-bottom: 12px;
-    }
-    .exercise-card-image img { 
-        width: 100%; 
-        height: 100%; 
-        object-fit: contain; 
-        display: block; 
-    }
-
-    /* pulsanti giorno su due righe (abbr + numero) */
-    .day-btn { flex-direction: column; gap: 2px; }
-    .day-num { font-size: 0.7rem; font-weight: 700; }
-
-    /* Salva allenamento */
-    .save-workout-btn {
-        width: 100%;
-        background-color: #238636;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 14px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        min-height: 48px;
-        margin-top: 8px;
-    }
-    .save-workout-btn:active { transform: scale(0.98); }
-    .save-confirm {
-        text-align: center;
-        color: #56d364;
-        font-weight: 600;
-        font-size: 0.9rem;
-        min-height: 1.2rem;
-        margin-top: 10px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    /* Badge allenamento nelle statistiche */
-    .stats-workout-badge {
-        color: #56d364;
-        font-weight: 600;
-        font-size: 0.8rem;
-        margin-right: 8px;
-    }
     </style>
 </head>
 <body>
@@ -675,12 +653,15 @@
             <button class="stats-tab active" data-period="settimana" onclick="switchStatsPeriod('settimana')">Ultimi 7 giorni</button>
             <button class="stats-tab" data-period="mese" onclick="switchStatsPeriod('mese')">Ultimi 30 giorni</button>
         </div>
-        <div id="stats-summary"></div>
+        <div id="stats-adherence"></div>
+        <div id="stats-summary" class="stats-summary-row"></div>
         <canvas id="stats-chart" width="440" height="260"></canvas>
-        <div id="stats-details"></div>
     </div>
 
     <script>
+        /* =========================================================
+           DATABASE ESERCIZI (asset riusabile)
+           ========================================================= */
         const EXERCISES = {
             // Petto
             "floor_press": { id: "floor_press", name: "Dumbbell Floor Press", muscleGroup: "Petto", sets: 4, reps: "10-12", description: "Disteso sulla schiena sul tappetino, spingi i manubri verso l'alto estendendo le braccia. I tricipiti toccano terra a ogni ripetizione in modo controllato." },
@@ -706,7 +687,7 @@
             "rear_delt_flyes": { id: "rear_delt_flyes", name: "Bent-Over Rear Delt Flyes", muscleGroup: "Spalle", sets: 3, reps: "12-15", description: "Aperture posteriori. Busto flesso in avanti a circa 45 gradi, solleva i manubri lateralmente spingendo indietro i gomiti per allenare i deltoidi posteriori." },
             // Dorso
             "one_arm_row": { id: "one_arm_row", name: "One-Arm Dumbbell Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore singolo. Appoggia un ginocchio e la mano corrispondente sulla sedia per darti stabilità. Con l'altro braccio, tira il manubrio verso il fianco portando il gomito in alto e indietro." },
-            "bent_over_row": { id: "bent_over_row", name: "Dumbbell Bent-Over Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore bilaterale. In piedi con il busto flesso in avanti a 45° e ginocchia leggermente piegate. Tira entrambi i manubri contemporaneamente verso la pancia mantenendo i gomiti stretti." },
+            "bent_over_row": { id: "bent_over_row", name: "Dumbbell Bent-Over Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore bilaterale. In piedi con il busto fleso in avanti a 45° e ginocchia leggermente piegate. Tira entrambi i manubri contemporaneamente verso la pancia mantenendo i gomiti stretti." },
             "pullover": { id: "pullover", name: "Dumbbell Pullover", muscleGroup: "Dorso", sets: 3, reps: "10-12", description: "Disteso sulla schiena sul tappetino, tieni un manubrio sopra il petto con braccia quasi tese. Porta il manubrio lentamente all'indietro oltre la testa sfiorando il pavimento, poi ritorna su contraendo il dorso." },
             "superman": { id: "superman", name: "Superman", muscleGroup: "Dorso", sets: 3, reps: "12-15", description: "Disteso a pancia in giù sul tappetino, solleva contemporaneamente il petto, le braccia e le gambe contraendo la bassa schiena (lombari) e i glutei. Mantieni la posizione per un secondo." },
             // Core
@@ -724,69 +705,29 @@
             "frog_glute_bridge": { id: "frog_glute_bridge", name: "Frog Glute Bridge", muscleGroup: "Glutei", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino. Unisci le piante dei piedi lasciando cadere le ginocchia verso l'esterno a farfalla. Posiziona un manubrio sul bacino e solleva il bacino da terra contraendo i glutei." }
         };
 
-        const SCHEDULE = {
-  "2026-06-26": [
-    { id: "floor_press", sets: "", reps: "" },
-    { id: "floor_flyes", sets: "", reps: "" },
-    { id: "pullover",    sets: "", reps: "" },
-    { id: "one_arm_row", sets: "", reps: "" },
-  ],
-  "2026-06-27": [
-    { id: "russian_twists", sets: "", reps: "" },
-    { id: "leg_raises",     sets: "", reps: "" },
-    { id: "glute_bridge",   sets: "", reps: "" },
-    { id: "sumo_squat",     sets: "", reps: "" },
-    { id: "tricep_kickback",sets: "", reps: "" },
-    { id: "skullcrusher",   sets: "", reps: "" },
-    { id: "overhead_press", sets: "", reps: "" },
-    { id: "lateral_raises", sets: "", reps: "" },
-  ],
-  "2026-06-28": [
-    { id: "bicep_curl",        sets: "", reps: "" },
-    { id: "hammer_curl",       sets: "", reps: "" },
-    { id: "concentration_curl",sets: "", reps: "" },
-    { id: "alternating_curl",  sets: "", reps: "" },
-    { id: "cross_body_curl",   sets: "", reps: "" },
-  ],
-  "2026-06-29": [
-    { id: "goblet_squat",   sets: "", reps: "" },
-    { id: "russian_twists", sets: "", reps: "" },
-    { id: "leg_raises",     sets: "", reps: "" },
-  ],
-  "2026-06-30": [
-    { id: "bicep_curl",        sets: "", reps: "" },
-    { id: "hammer_curl",       sets: "", reps: "" },
-    { id: "concentration_curl",sets: "", reps: "" },
-    { id: "alternating_curl",  sets: "", reps: "" },
-  ],
-  "2026-07-01": [
-    { id: "overhead_press", sets: "", reps: "" },
-    { id: "lateral_raises", sets: "", reps: "" },
-    { id: "front_raises",   sets: "", reps: "" },
-  ],
-  "2026-07-02": [
-    { id: "goblet_squat",   sets: "", reps: "" },
-    { id: "russian_twists", sets: "", reps: "" },
-    { id: "leg_raises",     sets: "", reps: "" },
-  ],
-  "2026-07-03": [
-    { id: "bicep_curl",        sets: "", reps: "" },
-    { id: "hammer_curl",       sets: "", reps: "" },
-    { id: "concentration_curl",sets: "", reps: "" },
-    { id: "alternating_curl",  sets: "", reps: "" },
-  ],
-  "2026-07-04": [
-    { id: "russian_twists", sets: "", reps: "" },
-    { id: "leg_raises",     sets: "", reps: "" },
-    { id: "glute_bridge",   sets: "", reps: "" },
-    { id: "sumo_squat",     sets: "", reps: "" },
-  ],
-};
+        /* =========================================================
+           PROGRAMMA SETTIMANALE (template ricorrente)
+           Chiavi = abbreviazioni giorno italiane. null = riposo.
+           FACILMENTE EDITABILE: cambia gli id qui sotto per
+           modificare il programma. L'architettura non cambia.
+           ========================================================= */
+        const WEEK_PLAN = {
+            "Lun": ["floor_press", "push_ups", "decline_push_ups", "one_arm_row", "bent_over_row", "superman", "crunches", "plank"],          // Petto + Dorso + Core
+            "Mar": ["overhead_press", "lateral_raises", "rear_delt_flyes", "bicep_curl", "hammer_curl", "chair_dips", "overhead_extension"], // Spalle + Braccia
+            "Mer": null,                                                                                                                       // RIPOSO
+            "Gio": ["floor_flyes", "incline_push_ups", "bulgarian_split_squat", "goblet_squat", "glute_bridge", "sumo_squat", "russian_twists", "leg_raises"], // Petto + Gambe + Glutei + Core
+            "Ven": ["pullover", "one_arm_row", "concentration_curl", "alternating_curl", "cross_body_curl", "tricep_kickback", "skullcrusher"], // Dorso + Braccia
+            "Sab": ["front_raises", "overhead_press", "chair_step_ups", "frog_glute_bridge", "plank", "leg_raises"],                            // Spalle + Gambe + Glutei + Core
+            "Dom": null                                                                                                                        // RIPOSO
+        };
+
+        // Mappa data ISO → chiave WEEK_PLAN (0=Domenica come getDay)
+        const ISO_TO_WEEKDAY = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 
         let selectedDate = '';
 
         /* =========================================================
-           SINCRONIZZAZIONE CLOUD (Supabase)
+           SINCRONIZZAZIONE CLOUD (Supabase) — riutilizzata
            localStorage resta la cache locale (l'app funziona offline);
            Supabase è lo strato di sync tra dispositivi.
            Codice di sync FISSO: tutti i dispositivi che aprono questa
@@ -802,21 +743,21 @@
         };
 
         function localData() {
-            return { steps_history: getStepsHistory(), workout_log: getWorkoutLog() };
+            return { steps_history: getStepsHistory(), wlog: getWorkoutLog() };
         }
         function applyData(d) {
             localStorage.setItem('steps_history', JSON.stringify(d.steps_history || {}));
-            localStorage.setItem('workout_log', JSON.stringify(d.workout_log || {}));
+            localStorage.setItem('wlog', JSON.stringify(d.wlog || {}));
         }
         // Unione non distruttiva: "over" vince sui conflitti, ma le chiavi disgiunte si conservano
         function mergeData(base, over) {
             base = base || {}; over = over || {};
-            const wl = { ...(base.workout_log || {}) };
-            const oWl = over.workout_log || {};
+            const wl = { ...(base.wlog || {}) };
+            const oWl = over.wlog || {};
             for (const date in oWl) wl[date] = { ...(wl[date] || {}), ...oWl[date] };
             return {
                 steps_history: { ...(base.steps_history || {}), ...(over.steps_history || {}) },
-                workout_log: wl
+                wlog: wl
             };
         }
 
@@ -824,13 +765,13 @@
             const r = await fetch(`${SB_URL}/rest/v1/workout_sync?sync_code=eq.${SYNC_CODE}&select=data`, { headers: SB_HEADERS });
             if (!r.ok) throw new Error('GET ' + r.status);
             const rows = await r.json();
-            return rows.length ? rows[0].data : { steps_history: {}, workout_log: {} };
+            return rows.length ? rows[0].data : { steps_history: {}, wlog: {} };
         }
 
         let cloudBusy = false, pushTimer = null;
 
         async function cloudPull() {
-            // non disturbare l'editing in corso
+            // non disturbare l'editing in corso (input passi)
             if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             try {
                 const remote = await cloudFetch();
@@ -873,41 +814,45 @@
 
         // Data ISO YYYY-MM-DD in fuso LOCALE (NON usare toISOString che è UTC e può sfasare il giorno)
         function toISO(d) {
-          const y = d.getFullYear();
-          const m = String(d.getMonth() + 1).padStart(2, '0');
-          const day = String(d.getDate()).padStart(2, '0');
-          return `${y}-${m}-${day}`;
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
         }
 
         const WEEKDAY_NAMES = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
         const MONTH_NAMES = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 
+        /* =========================================================
+           PROGRAMMA: render bottoni settimana + vista giorno
+           ========================================================= */
         function renderDayButtons() {
-          const container = document.getElementById('days-container');
-          container.innerHTML = '';
-          const abbr = ['LUN','MAR','MER','GIO','VEN','SAB','DOM'];
-          const today = new Date();
-          const todayISO = toISO(today);
-          // lunedì di questa settimana
-          const monday = new Date(today);
-          monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+            const container = document.getElementById('days-container');
+            container.innerHTML = '';
+            // Abbreviazioni indicizzate per getDay() (0=Dom ... 6=Sab)
+            const abbr = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
+            const today = new Date();
+            const todayISO = toISO(today);
 
-          for (let i = 0; i < 7; i++) {
-            const d = new Date(monday);
-            d.setDate(monday.getDate() + i);
-            const iso = toISO(d);
-            const btn = document.createElement('button');
-            btn.className = 'day-btn';
-            btn.dataset.date = iso;
-            if (iso === todayISO) btn.classList.add('today');
-            if (!SCHEDULE[iso]) btn.classList.add('rest'); // giorno senza programma = stile tenue
-            btn.innerHTML = `${abbr[i]}<br><span class="day-num">${d.getDate()}</span>`;
-            btn.onclick = () => selectDate(iso);
-            container.appendChild(btn);
-          }
+            // Mostra OGGI + prossimi 6 giorni (anteprima delle prossime giornate).
+            // Il primo bottone è sempre oggi; ieri e i giorni passati non sono mostrati.
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() + i);
+                const iso = toISO(d);
+                const weekday = ISO_TO_WEEKDAY[d.getDay()];
+                const btn = document.createElement('button');
+                btn.className = 'day-btn';
+                btn.dataset.date = iso;
+                if (iso === todayISO) btn.classList.add('today');
+                if (!WEEK_PLAN[weekday]) btn.classList.add('rest'); // giorno senza programma = riposo
+                btn.innerHTML = `${abbr[d.getDay()]}<span class="day-num">${d.getDate()}</span>`;
+                btn.onclick = () => selectDate(iso);
+                container.appendChild(btn);
+            }
         }
 
-        // Funzioni tab e navigazione
+        // Navigazione tab
         function switchTab(tabName) {
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
@@ -921,120 +866,125 @@
             if (tabName === 'esercizi') {
                 renderExerciseDatabase('tutti');
             } else if (tabName === 'statistiche') {
-                renderStatistiche();
+                switchStatsPeriod('settimana');
             }
         }
 
-        // Programma e giorni
+        // Cuore del tab Programma
         function selectDate(iso) {
-          selectedDate = iso;
-          refreshStepsSection(iso); // i passi seguono il giorno selezionato
-          document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active')); // NON togliere .today
-          const btn = document.querySelector(`.day-btn[data-date="${iso}"]`);
-          if (btn) btn.classList.add('active');
+            selectedDate = iso;
+            refreshStepsSection(iso);
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.querySelector(`.day-btn[data-date="${iso}"]`);
+            if (btn) btn.classList.add('active');
 
-          document.getElementById('workout-container').style.display = 'block';
+            document.getElementById('workout-container').style.display = 'block';
 
-          const d = new Date(iso + 'T12:00:00');
-          document.getElementById('day-title').textContent =
-            `${WEEKDAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+            const d = new Date(iso + 'T12:00:00');
+            const weekday = ISO_TO_WEEKDAY[d.getDay()];
+            document.getElementById('day-title').textContent =
+                `${WEEKDAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 
-          const list = document.getElementById('exercises-list');
-          list.innerHTML = '';
+            const list = document.getElementById('exercises-list');
+            list.innerHTML = '';
 
-          const dayExercises = SCHEDULE[iso];
-          if (!dayExercises || dayExercises.length === 0) {
-            document.getElementById('day-subtitle').textContent = '';
-            list.innerHTML = `
-              <div class="rest-day">
-                <div class="rest-emoji">😌</div>
-                <p class="rest-title">Nessun allenamento</p>
-                <p class="rest-subtitle">Giorno non programmato.</p>
-              </div>`;
-            return;
-          }
+            const dayExercises = WEEK_PLAN[weekday];
+            if (!dayExercises || dayExercises.length === 0) {
+                document.getElementById('day-subtitle').textContent = '';
+                list.innerHTML = `
+                  <div class="rest-day">
+                    <div class="rest-emoji">😴</div>
+                    <p class="rest-title">Giorno di Riposo</p>
+                    <p class="rest-subtitle">Recupera le energie per la prossima sessione!</p>
+                  </div>`;
+                return;
+            }
 
-          // sottotitolo auto-derivato dai gruppi muscolari del giorno
-          const groups = [...new Set(
-            dayExercises.map(it => EXERCISES[it.id] && EXERCISES[it.id].muscleGroup).filter(Boolean)
-          )];
-          document.getElementById('day-subtitle').textContent = groups.join(' + ');
+            const log = getWorkoutLog();
+            const dayLog = log[iso] || {};
 
-          const log = getWorkoutLog();
-          dayExercises.forEach(item => {
-            const exercise = EXERCISES[item.id];
-            if (!exercise) return;
+            // sottotitolo: gruppi muscolari del giorno + progresso spunte
+            const groups = [...new Set(
+                dayExercises.map(id => EXERCISES[id] && EXERCISES[id].muscleGroup).filter(Boolean)
+            )];
+            const doneCount = dayExercises.filter(id => dayLog[id]).length;
+            document.getElementById('day-subtitle').textContent =
+                `${groups.join(' + ')} · ${doneCount}/${dayExercises.length} completati`;
 
-            const sets = item.sets || exercise.sets;   // fallback ai default finché l'utente non compila
-            const reps = item.reps || exercise.reps;
-            const targetSets = parseInt(sets) || exercise.sets;
+            dayExercises.forEach(id => {
+                const card = buildWorkoutCard(id, iso, !!dayLog[id]);
+                list.appendChild(card);
+            });
+        }
+
+        // Card esercizio con checkbox "fatto"
+        function buildWorkoutCard(id, iso, done) {
+            const exercise = EXERCISES[id];
+            if (!exercise) return document.createElement('div');
 
             const badgeClass = `badge-${exercise.muscleGroup.toLowerCase()}`;
-            let repsText = `${sets} serie × ${reps}`;
-            if (!String(reps).includes('sec') && !String(reps).includes('per gamba')) repsText += ' rip.';
-
-            const savedSets = (log[selectedDate] && log[selectedDate][exercise.id]) ? log[selectedDate][exercise.id].sets : [];
-            const numInputs = Math.max(targetSets, savedSets.length);
-
-            let setsHtml = '';
-            for (let i = 0; i < numInputs; i++) {
-              const value = savedSets[i] || '';
-              const hasValue = value ? ' has-value' : '';
-              setsHtml += `
-                <div class="log-set-row">
-                  <span class="log-set-label">S${i+1}</span>
-                  <input type="number" class="log-set-input${hasValue}" inputmode="numeric"
-                         placeholder="rip." min="0" max="999" value="${value}"
-                         onblur="saveExerciseLog('${exercise.id}')"
-                         onkeydown="if(event.key==='Enter'){this.blur()}"
-                         oninput="this.classList.toggle('has-value', this.value !== ''); updateExerciseProgress(this.closest('.workout-log-section'));">
-                </div>`;
+            let repsText = `${exercise.sets} serie × ${exercise.reps}`;
+            if (!exercise.reps.includes('sec') && !exercise.reps.includes('per gamba')) {
+                repsText += ' rip.';
             }
 
             const card = document.createElement('div');
-            card.className = 'exercise-card';
+            card.className = 'exercise-card' + (done ? ' done' : '');
+            card.dataset.exerciseId = id;
             card.innerHTML = `
-              <div class="exercise-card-image"><img src="immagini/${exercise.id}.png" alt="${exercise.name}"></div>
-              <div class="exercise-header">
-                <span class="exercise-name">${exercise.name}</span>
-                <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
-              </div>
-              <div class="exercise-sets">${repsText}</div>
-              <button class="toggle-desc-btn" onclick="toggleDescription(this)">Mostra dettagli ▼</button>
-              <div class="exercise-desc">${exercise.description}</div>
-              <div class="workout-log-section" data-exercise-id="${exercise.id}" data-target-sets="${targetSets}">
-                <div class="log-header">
-                  <span class="log-title">📝 Serie eseguite</span>
-                  <span class="log-progress"></span>
+                <div class="exercise-card-image"><img src="immagini/${id}.png" alt="${exercise.name}"></div>
+                <div class="exercise-header">
+                    <span class="exercise-name">${exercise.name}</span>
+                    <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
                 </div>
-                <div class="log-sets-container">${setsHtml}</div>
-                <button class="log-add-set-btn" onclick="addSetInput(this)">+ Aggiungi serie</button>
-              </div>`;
-            list.appendChild(card);
-            updateExerciseProgress(card.querySelector('.workout-log-section'));
-          });
-
-          // Pulsante di salvataggio esplicito dell'intero allenamento del giorno
-          const saveBar = document.createElement('div');
-          saveBar.innerHTML = `
-            <button class="save-workout-btn" onclick="saveAllExercises()">💾 Salva allenamento</button>
-            <div id="save-confirm" class="save-confirm"></div>`;
-          list.appendChild(saveBar);
+                <div class="exercise-sets">${repsText}</div>
+                <button class="toggle-desc-btn" onclick="toggleDescription(this)">Mostra dettagli ▼</button>
+                <div class="exercise-desc">${exercise.description}</div>
+                <button class="done-btn${done ? ' done' : ''}" onclick="toggleDone('${id}')">
+                    <span class="check">✓</span>
+                    <span class="done-label">${done ? 'Fatto' : 'Segna come fatto'}</span>
+                </button>`;
+            return card;
         }
 
-        // Salva tutte le serie inserite per il giorno selezionato e mostra conferma
-        function saveAllExercises() {
-          document.querySelectorAll('.workout-log-section').forEach(sec => {
-            saveExerciseLog(sec.dataset.exerciseId);
-          });
-          const c = document.getElementById('save-confirm');
-          if (c) {
-            c.textContent = '✓ Allenamento salvato';
-            c.style.opacity = '1';
-            setTimeout(() => { c.style.opacity = '0'; }, 2000);
-          }
+        // Toggle spunta esercizio: 1 tap = fatto/non fatto
+        function toggleDone(exerciseId) {
+            const log = getWorkoutLog();
+            if (!log[selectedDate]) log[selectedDate] = {};
+
+            const nowDone = !log[selectedDate][exerciseId];
+            if (nowDone) log[selectedDate][exerciseId] = true;
+            else delete log[selectedDate][exerciseId];
+
+            // cleanup: se la data è vuota, rimuovi la chiave
+            if (Object.keys(log[selectedDate]).length === 0) delete log[selectedDate];
+
+            localStorage.setItem('wlog', JSON.stringify(log));
+            scheduleCloudPush();
+
+            // refresh visivo solo della card interessata + header (più rapido di un full re-render)
+            const card = document.querySelector(`.exercise-card[data-exercise-id="${exerciseId}"]`);
+            if (card) {
+                card.classList.toggle('done', nowDone);
+                const btn = card.querySelector('.done-btn');
+                if (btn) {
+                    btn.classList.toggle('done', nowDone);
+                    const label = btn.querySelector('.done-label');
+                    if (label) label.textContent = nowDone ? 'Fatto' : 'Segna come fatto';
+                }
+            }
+
+            // aggiorna progresso nell'header
+            const weekday = ISO_TO_WEEKDAY[new Date(selectedDate + 'T12:00:00').getDay()];
+            const dayExercises = WEEK_PLAN[weekday] || [];
+            const dayLog = log[selectedDate] || {};
+            const groups = [...new Set(dayExercises.map(id => EXERCISES[id] && EXERCISES[id].muscleGroup).filter(Boolean))];
+            const doneCount = dayExercises.filter(id => dayLog[id]).length;
+            document.getElementById('day-subtitle').textContent =
+                `${groups.join(' + ')} · ${doneCount}/${dayExercises.length} completati`;
         }
 
+        // Toggle descrizione (unificato, usato sia da Programma che da DB)
         function toggleDescription(btn) {
             const desc = btn.nextElementSibling;
             if (desc.style.display === 'none' || desc.style.display === '') {
@@ -1046,7 +996,9 @@
             }
         }
 
-        // Passi
+        /* =========================================================
+           PASSI
+           ========================================================= */
         function getStepsHistory() {
             const data = localStorage.getItem('steps_history');
             return data ? JSON.parse(data) : {};
@@ -1055,7 +1007,6 @@
         function saveSteps() {
             const input = document.getElementById('steps-input');
             const value = parseInt(input.value);
-
             if (isNaN(value) || value <= 0) return;
 
             document.querySelector('.steps-input-row').style.display = 'none';
@@ -1069,7 +1020,6 @@
             scheduleCloudPush();
         }
 
-        // Aggiorna la sezione passi in base al giorno selezionato
         function refreshStepsSection(iso) {
             const history = getStepsHistory();
             const input = document.getElementById('steps-input');
@@ -1093,85 +1043,20 @@
         }
 
         document.getElementById('steps-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                saveSteps();
-            }
+            if (e.key === 'Enter') saveSteps();
         });
 
-        // Workout Log
+        /* =========================================================
+           LOG ALLENAMENTO (spunte per-data)
+           ========================================================= */
         function getWorkoutLog() {
-            const data = localStorage.getItem('workout_log');
+            const data = localStorage.getItem('wlog');
             return data ? JSON.parse(data) : {};
         }
 
-        function updateExerciseProgress(section) {
-            const targetSets = parseInt(section.dataset.targetSets) || 0;
-            const inputs = section.querySelectorAll('.log-set-input');
-            let compilate = 0;
-            inputs.forEach(input => {
-                const val = parseInt(input.value);
-                if (!isNaN(val) && val > 0) compilate++;
-            });
-            
-            const progressSpan = section.querySelector('.log-progress');
-            if (progressSpan) {
-                progressSpan.textContent = `${compilate}/${targetSets}`;
-                if (compilate >= targetSets && targetSets > 0) {
-                    progressSpan.classList.add('done');
-                } else {
-                    progressSpan.classList.remove('done');
-                }
-            }
-            
-            const card = section.closest('.exercise-card');
-            if (card) {
-                if (compilate >= targetSets && targetSets > 0) {
-                    card.classList.add('completed');
-                } else {
-                    card.classList.remove('completed');
-                }
-            }
-        }
-
-        function saveExerciseLog(exerciseId) {
-          const log = getWorkoutLog();
-          if (!log[selectedDate]) log[selectedDate] = {};
-
-          const section = document.querySelector(`.workout-log-section[data-exercise-id="${exerciseId}"]`);
-          const inputs = section.querySelectorAll('.log-set-input');
-          const sets = [];
-          inputs.forEach(input => {
-            const val = parseInt(input.value);
-            if (!isNaN(val) && val > 0) sets.push(val);
-          });
-
-          if (sets.length > 0) log[selectedDate][exerciseId] = { sets: sets };
-          else delete log[selectedDate][exerciseId];
-
-          localStorage.setItem('workout_log', JSON.stringify(log));
-          scheduleCloudPush();
-        }
-
-        function addSetInput(btn) {
-            const container = btn.previousElementSibling;
-            const section = btn.closest('.workout-log-section');
-            const exerciseId = section.dataset.exerciseId;
-            const count = container.children.length + 1;
-            
-            const row = document.createElement('div');
-            row.className = 'log-set-row';
-            row.innerHTML = `
-                <span class="log-set-label">S${count}</span>
-                <input type="number" class="log-set-input" inputmode="numeric" 
-                       placeholder="rip." min="0" max="999"
-                       onblur="saveExerciseLog('${exerciseId}')" 
-                       onkeydown="if(event.key==='Enter'){this.blur()}"
-                       oninput="this.classList.toggle('has-value', this.value !== ''); updateExerciseProgress(this.closest('.workout-log-section'));">
-            `;
-            container.appendChild(row);
-        }
-
-        // Database Esercizi
+        /* =========================================================
+           DATABASE ESERCIZI (tab consultazione)
+           ========================================================= */
         function filterExercises(gruppo) {
             document.querySelectorAll('.db-filter-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.db-filter-btn[data-filter="${gruppo}"]`).classList.add('active');
@@ -1187,12 +1072,10 @@
 
             exerciseKeys.forEach(key => {
                 const exercise = EXERCISES[key];
-
                 if (filtro && filtro !== 'tutti' && exercise.muscleGroup !== filtro) return;
-                
+
                 count++;
                 const badgeClass = `badge-${exercise.muscleGroup.toLowerCase()}`;
-
                 let repsText = `${exercise.sets} serie × ${exercise.reps}`;
                 if (!exercise.reps.includes("sec") && !exercise.reps.includes("per gamba")) {
                     repsText += " rip.";
@@ -1202,8 +1085,7 @@
                 card.className = 'db-exercise-card';
                 card.innerHTML = `
                     <div class="db-card-image">
-                        <img src="immagini/${exercise.id}.png" alt="${exercise.name}" 
->
+                        <img src="immagini/${exercise.id}.png" alt="${exercise.name}">
                     </div>
                     <div class="db-card-body">
                         <div class="db-card-header">
@@ -1211,52 +1093,70 @@
                             <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
                         </div>
                         <div class="db-card-stats">${repsText}</div>
-                        <button class="db-toggle-desc-btn" onclick="toggleDbDescription(this)">Mostra dettagli ▼</button>
+                        <button class="db-toggle-desc-btn" onclick="toggleDescription(this)">Mostra dettagli ▼</button>
                         <div class="db-card-desc">${exercise.description}</div>
                     </div>
                 `;
                 container.appendChild(card);
             });
-            
+
             document.getElementById('db-count').textContent = `${count} esercizi trovati`;
         }
 
-        function toggleDbDescription(btn) {
-            const desc = btn.nextElementSibling;
-            if (desc.style.display === 'none' || desc.style.display === '') {
-                desc.style.display = 'block';
-                btn.textContent = 'Nascondi dettagli ▲';
-            } else {
-                desc.style.display = 'none';
-                btn.textContent = 'Mostra dettagli ▼';
-            }
-        }
-
-        // Statistiche
-        function renderStatistiche() {
-            switchStatsPeriod('settimana');
-        }
-
+        /* =========================================================
+           STATISTICHE (aderenza + passi)
+           ========================================================= */
         function switchStatsPeriod(period) {
             document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.stats-tab[data-period="${period}"]`).classList.add('active');
-            
+
             const history = getStepsHistory();
+            const log = getWorkoutLog();
             const days = period === 'settimana' ? 7 : 30;
             const dates = [];
             const today = new Date();
-            
+
             for (let i = days - 1; i >= 0; i--) {
                 const d = new Date(today);
                 d.setDate(d.getDate() - i);
                 dates.push(toISO(d)); // data LOCALE, coerente con saveSteps/selectedDate
             }
-            
+
             const values = dates.map(d => history[d] || 0);
             const filledValues = values.filter(v => v > 0);
             const total = filledValues.reduce((a, b) => a + b, 0);
             const avg = filledValues.length > 0 ? Math.round(total / filledValues.length) : 0;
-            
+
+            // Aderenza:allenamenti completati / giorni programmati nel periodo
+            // Un giorno conta come "allenato" se ha almeno 1 spunta nel log
+            let programmedDays = 0, trainedDays = 0, totalExercisesDone = 0;
+            dates.forEach(d => {
+                const dObj = new Date(d + 'T12:00:00');
+                const weekday = ISO_TO_WEEKDAY[dObj.getDay()];
+                const plan = WEEK_PLAN[weekday];
+                if (plan && plan.length > 0) {
+                    programmedDays++;
+                    const dayLog = log[d] || {};
+                    const doneInDay = plan.filter(id => dayLog[id]).length;
+                    if (doneInDay > 0) trainedDays++;
+                    totalExercisesDone += doneInDay;
+                }
+            });
+            const adherencePct = programmedDays > 0 ? Math.round((trainedDays / programmedDays) * 100) : 0;
+
+            // Card aderenza (solo se ci sono giorni programmati nel periodo)
+            const adherenceHtml = programmedDays > 0 ? `
+                <div class="adherence-card">
+                    <div class="adherence-header">
+                        <span class="adherence-label">${period === 'settimana' ? 'Questa settimana' : 'Ultimi 30 giorni'}</span>
+                        <span class="adherence-value">${trainedDays}/${programmedDays} allenamenti</span>
+                    </div>
+                    <div class="adherence-bar"><div class="adherence-fill" style="width:${adherencePct}%"></div></div>
+                </div>
+            ` : '';
+
+            document.getElementById('stats-adherence').innerHTML = adherenceHtml;
+
             document.getElementById('stats-summary').innerHTML = `
                 <div class="stats-card">
                     <div class="stats-card-value">${total.toLocaleString('it-IT')}</div>
@@ -1264,87 +1164,46 @@
                 </div>
                 <div class="stats-card">
                     <div class="stats-card-value">${avg.toLocaleString('it-IT')}</div>
-                    <div class="stats-card-label">Media giornaliera</div>
+                    <div class="stats-card-label">Media passi</div>
                 </div>
                 <div class="stats-card">
-                    <div class="stats-card-value">${filledValues.length}/${days}</div>
-                    <div class="stats-card-label">Giorni registrati</div>
+                    <div class="stats-card-value">${totalExercisesDone}</div>
+                    <div class="stats-card-label">Esercizi fatti</div>
                 </div>
             `;
-            
+
             drawBarChart(dates, values, period);
-            
-            const dayNames = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-            const workoutLog = getWorkoutLog();
-            const hasAnyWorkout = dates.some(d => workoutLog[d] && Object.keys(workoutLog[d]).length > 0);
-            let detailsHtml = '';
-
-            if (filledValues.length === 0 && !hasAnyWorkout) {
-                detailsHtml = `
-                    <div style="text-align:center; padding:32px 16px; color:#8b949e;">
-                      <div style="font-size:2.5rem; margin-bottom:12px;">📊</div>
-                      <p style="font-size:0.95rem;">Nessun dato registrato in questo periodo.</p>
-                      <p style="font-size:0.85rem; margin-top:4px;">Salva passi e allenamenti dal tab Programma per vederli qui.</p>
-                    </div>
-                `;
-            } else {
-                for (let i = dates.length - 1; i >= 0; i--) {
-                    const dstr = dates[i];
-                    const d = new Date(dstr + 'T12:00:00');
-                    const dayLabel = `${dayNames[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
-                    const val = values[i];
-                    const wo = workoutLog[dstr];
-
-                    let right = '';
-                    if (wo && Object.keys(wo).length > 0) {
-                        // conteggio esercizi loggati per gruppo muscolare (es. "2 Dorso, 3 Bicipiti")
-                        const counts = {};
-                        for (const exId in wo) {
-                            const g = EXERCISES[exId] ? EXERCISES[exId].muscleGroup : 'Altro';
-                            counts[g] = (counts[g] || 0) + 1;
-                        }
-                        const parts = Object.keys(counts).map(g => `${counts[g]} ${g}`).join(', ');
-                        right += `<span class="stats-workout-badge">🏋️ ${parts}</span>`;
-                    }
-                    if (val > 0) right += `${val.toLocaleString('it-IT')} passi`;
-                    if (!right) right = `<span class="no-data">—</span>`;
-
-                    detailsHtml += `<div class="stats-day-row"><span class="stats-day-date">${dayLabel}</span><span class="stats-day-value">${right}</span></div>`;
-                }
-            }
-            document.getElementById('stats-details').innerHTML = detailsHtml;
         }
 
         function drawBarChart(dates, values, period) {
             const canvas = document.getElementById('stats-chart');
             const ctx = canvas.getContext('2d');
-            
+
             const rect = canvas.getBoundingClientRect();
-            // Evita errore se il canvas non è visibile
-            if (rect.width === 0) return;
-            
+            if (rect.width === 0) return; // canvas non visibile
+
             canvas.width = rect.width * window.devicePixelRatio;
             canvas.height = rect.height * window.devicePixelRatio;
             ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-            
+
             const W = rect.width;
             const H = rect.height;
             const padding = { top: 20, right: 12, bottom: 40, left: 12 };
             const chartW = W - padding.left - padding.right;
             const chartH = H - padding.top - padding.bottom;
-            
+
             ctx.clearRect(0, 0, W, H);
-            
+
             const maxVal = Math.max(...values, 1000);
             const barCount = values.length;
             const barWidth = chartW / barCount * 0.7;
             const barGap = chartW / barCount * 0.3;
-            
+
             values.forEach((val, i) => {
                 const barH = (val / maxVal) * chartH;
                 const x = padding.left + i * (chartW / barCount) + barGap / 2;
                 const y = padding.top + chartH - barH;
-                
+
                 ctx.fillStyle = val > 0 ? '#58a6ff' : '#21262d';
                 ctx.beginPath();
                 if (ctx.roundRect) {
@@ -1354,32 +1213,32 @@
                 }
                 ctx.fill();
             });
-            
+
             ctx.fillStyle = '#8b949e';
             ctx.font = `${period === 'settimana' ? 11 : 8}px -apple-system, sans-serif`;
             ctx.textAlign = 'center';
-            
+
             const dayAbbr = ['D', 'L', 'M', 'Me', 'G', 'V', 'S'];
             dates.forEach((date, i) => {
                 const d = new Date(date + 'T12:00:00');
                 const x = padding.left + i * (chartW / barCount) + (chartW / barCount) / 2;
-                const label = period === 'settimana' 
-                    ? dayAbbr[d.getDay()] 
-                    : `${d.getDate()}`;
+                const label = period === 'settimana' ? dayAbbr[d.getDay()] : `${d.getDate()}`;
                 ctx.fillText(label, x, H - padding.bottom + 16);
             });
         }
 
-        // Setup iniziale
+        /* =========================================================
+           INIT
+           ========================================================= */
         document.addEventListener('DOMContentLoaded', () => {
-          renderDayButtons();
-          selectDate(toISO(new Date())); // selectDate aggiorna anche la sezione passi del giorno
+            renderDayButtons();
+            selectDate(toISO(new Date())); // selectDate aggiorna anche la sezione passi del giorno
 
-          // Sincronizzazione cloud: pull all'avvio + seed dei dati locali già presenti,
-          // poi poll periodico e pull al rientro sull'app
-          cloudPull().then(() => scheduleCloudPush());
-          setInterval(cloudPull, 20000);
-          document.addEventListener('visibilitychange', () => { if (!document.hidden) cloudPull(); });
+            // Sincronizzazione cloud: pull all'avvio + seed dei dati locali già presenti,
+            // poi poll periodico e pull al rientro sull'app
+            cloudPull().then(() => scheduleCloudPush());
+            setInterval(cloudPull, 20000);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) cloudPull(); });
         });
     </script>
 </body>
