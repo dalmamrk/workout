@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <title>Elenco Esercizi</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #161b22;
+        }
+        th, td {
+            border: 1px solid #30363d;
+            padding: 16px;
+            vertical-align: middle;
+            position: relative;
+        }
+        th {
+            background-color: #21262d;
+            text-align: left;
+        }
+        .col-info {
+            width: 70%;
+        }
+        .col-image {
+            width: 30%;
+            text-align: center;
+        }
+        img {
+            max-width: 150px;
+            border-radius: 8px;
+            background-color: #0d1117;
+        }
+        h2 { 
+            margin-top: 0; 
+            margin-bottom: 8px;
+            color: #58a6ff; 
+            font-size: 1.2rem;
+        }
+        p { 
+            line-height: 1.5; 
+            color: #8b949e; 
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        .muscle-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            background-color: #21262d;
+            color: #c9d1d9;
+        }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            background-color: #161b22;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+        }
+        .tab-btn {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            background-color: #30363d;
+        }
+        .tab-btn.active {
+            background-color: #58a6ff;
+            color: #0d1117;
+            border-color: #58a6ff;
+        }
+
+        .exercise-number {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #58a6ff;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Elenco Esercizi (Uso Interno)</h1>
+    <p>Questo documento è a uso interno per facilitare la stilatura della programmazione settimanale.</p>
+    
+    <div class="tabs">
+        <button class="tab-btn active" data-cat="Tutti" onclick="showCategory('Tutti')">Tutti</button>
+        <button class="tab-btn" data-cat="Petto" onclick="showCategory('Petto')">Petto</button>
+        <button class="tab-btn" data-cat="Bicipiti" onclick="showCategory('Bicipiti')">Bicipiti</button>
+        <button class="tab-btn" data-cat="Tricipiti" onclick="showCategory('Tricipiti')">Tricipiti</button>
+        <button class="tab-btn" data-cat="Spalle" onclick="showCategory('Spalle')">Spalle</button>
+        <button class="tab-btn" data-cat="Dorso" onclick="showCategory('Dorso')">Dorso</button>
+        <button class="tab-btn" data-cat="Core" onclick="showCategory('Core')">Core</button>
+        <button class="tab-btn" data-cat="Gambe e Glutei" onclick="showCategory('Gambe e Glutei')">Gambe e Glutei</button>
+    </div>
+
+    <table>
+        <tr>
+            <th class="col-info">Dettagli Esercizio</th>
+            <th class="col-image">Immagine</th>
+        </tr>
+        
+        <!-- Petto -->
+        <tr>
+            <td>
+                <span class="exercise-number">#1</span>
+                <h2>Neutral Close-Grip Dumbbell Press</h2>
+                <span class="muscle-badge">Petto</span>
+                <p>Spingendo i manubri uniti con presa neutra verso l'alto, si stimola la parte interna del petto (inner chest).<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/neutral_close_grip_dumbbell_press.png" alt="Neutral Close-Grip Dumbbell Press">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#2</span>
+                <h2>Incline Dumbbell Press</h2>
+                <span class="muscle-badge">Petto</span>
+                <p>Spingendo i manubri verso l'alto su una panca inclinata, si stimola la parte superiore del petto (upper chest).<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/incline_dumbbell_press.png" alt="Incline Dumbbell Press">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#3</span>
+                <h2>Standard Dumbbell Press</h2>
+                <span class="muscle-badge">Petto</span>
+                <p>Abbassando i manubri ai lati del petto su una panca piana e spingendoli verso l'alto, si stimola l'intero petto (chest overall).<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/standard_dumbbell_press.png" alt="Standard Dumbbell Press">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#4</span>
+                <h2>Dumbbell Fly</h2>
+                <span class="muscle-badge">Petto</span>
+                <p>Allargando le braccia per allungare e poi unendole, si stimola l'intero petto (chest overall).<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/dumbbell_fly.png" alt="Dumbbell Fly">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#5</span>
+                <h2>Dumbbell Pullover</h2>
+                <span class="muscle-badge">Petto</span>
+                <p>Abbassando il manubrio dietro la testa e portandolo sopra il petto, si stimola la parte inferiore del petto (lower chest).<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/dumbbell_pullover.png" alt="Dumbbell Pullover">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#6</span>
+                <h2>Reverse-Grip Dumbbell Press</h2>
+                <span class="muscle-badge">Petto</span>
+                <p>Afferrando i manubri con presa inversa e spingendoli verso l'alto, si stimola la parte superiore del petto (upper chest).<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/reverse_grip_dumbbell_press.png" alt="Reverse-Grip Dumbbell Press">
+            </td>
+        </tr>
+
+        <!-- Bicipiti -->
+        <tr>
+            <td>
+                <span class="exercise-number">#7</span>
+                <h2>Dumbbell Bicep Curl</h2>
+                <span class="muscle-badge">Bicipiti</span>
+                <p>Flessione delle braccia in piedi o seduti sulla sedia, eseguendo una supinazione (rotazione del polso verso l'esterno) durante la fase di salita.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/bicep_curl.png" alt="Dumbbell Bicep Curl">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#8</span>
+                <h2>Dumbbell Hammer Curl</h2>
+                <span class="muscle-badge">Bicipiti</span>
+                <p>Curl a martello. Flessione delle braccia mantenendo i palmi delle mani sempre rivolti l'uno verso l'altro (presa neutra) durante tutto il movimento.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/hammer_curl.png" alt="Dumbbell Hammer Curl">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#9</span>
+                <h2>Alternating Dumbbell Curl</h2>
+                <span class="muscle-badge">Bicipiti</span>
+                <p>Curl classico eseguito alternando in modo fluido il braccio destro e il braccio sinistro a ogni ripetizione.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/alternating_curl.png" alt="Alternating Dumbbell Curl">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <span class="exercise-number">#10</span>
+                <h2>Cross Body Hammer Curl</h2>
+                <span class="muscle-badge">Bicipiti</span>
+                <p>In piedi, afferra i manubri con presa neutra. Fletti un braccio portando il manubrio verso la spalla opposta, incrociando il petto. Ritorna lentamente alla posizione di partenza e alterna le braccia.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/cross_body_curl.png" alt="Cross Body Hammer Curl">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#11</span>
+                <h2>Incline Dumbbell Bicep Curl</h2>
+                <span class="muscle-badge">Bicipiti</span>
+                <p>Panca a 45-60°. Seduto, esegui il classico curl con manubri. La posizione del braccio dietro la linea del busto garantisce il massimo allungamento del capo lungo del bicipite.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/incline_bicep_curl.png" alt="Incline Dumbbell Bicep Curl">
+            </td>
+        </tr>
+
+        <!-- Tricipiti -->
+        <tr>
+            <td>
+                <span class="exercise-number">#12</span>
+                <h2>Triceps Overhead DB Extension</h2>
+                <span class="muscle-badge">Tricipiti</span>
+                <p>Estensioni dietro la nuca su panca. Seduto sulla panca con schienale verticale a 90° per stabilizzare la schiena, afferra il manubrio con entrambe le mani sopra la testa. Fletti i gomiti portando il peso dietro la nuca per il massimo allungamento, poi distendi le braccia verso l'alto contraendo i tricipiti.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/1_triceps_Overhead_DB_Tricep_Extension.png" alt="Triceps Overhead DB Extension">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#13</span>
+                <h2>Dumbbell Tricep Kickback</h2>
+                <span class="muscle-badge">Tricipiti</span>
+                <p>Busto flesso in avanti quasi parallelo al pavimento. Mantieni il braccio adeso al fianco e il gomito alto e immobile; estendi completamente l'avambraccio all'indietro.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/tricep_kickback.png" alt="Dumbbell Tricep Kickback">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#14</span>
+                <h2>Lying Dumbbell Triceps Extension</h2>
+                <span class="muscle-badge">Tricipiti</span>
+                <p>Su panca piana. Sdraiato, tieni i manubri con le braccia tese verso l'alto. Piega solo i gomiti portando i pesi ai lati della testa, poi distendi verso il soffitto.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/lying_triceps_extension.png" alt="Lying Dumbbell Triceps Extension">
+            </td>
+        </tr>
+
+        <!-- Spalle -->
+        <tr>
+            <td>
+                <span class="exercise-number">#15</span>
+                <h2>Seated Side Lateral Raise</h2>
+                <span class="muscle-badge">Spalle</span>
+                <p>Sedendosi su una panca per bloccare il busto e sollevando i manubri lateralmente, si stimola il lateral delts.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/seated_side_lateral_raise.png" alt="Seated Side Lateral Raise">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#16</span>
+                <h2>Seated Front Raise</h2>
+                <span class="muscle-badge">Spalle</span>
+                <p>Sedendosi su una panca per bloccare il busto e sollevando i manubri in avanti fino all'altezza delle spalle, si stimola il front delts.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/seated_front_raise.png" alt="Seated Front Raise">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#17</span>
+                <h2>Seated Shoulder Press</h2>
+                <span class="muscle-badge">Spalle</span>
+                <p>Fissando la schiena alla panca e spingendo i manubri dall'altezza delle spalle fin sopra la testa, si stimolano il front delts e il lateral delts.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/seated_shoulder_press.png" alt="Seated Shoulder Press">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#18</span>
+                <h2>Seated Front Press</h2>
+                <span class="muscle-badge">Spalle</span>
+                <p>Riunendo i manubri davanti al petto e spingendoli in avanti e verso l'alto, si stimola il front delts.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/seated_front_press.png" alt="Seated Front Press">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#19</span>
+                <h2>Seated Bent-Over Lateral Raise</h2>
+                <span class="muscle-badge">Spalle</span>
+                <p>Inclinando il busto in avanti e sollevando i manubri lateralmente, si stimola il rear delts.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/seated_bent_over_lateral_raise.png" alt="Seated Bent-Over Lateral Raise">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#20</span>
+                <h2>Seated Arnold Press</h2>
+                <span class="muscle-badge">Spalle</span>
+                <p>Ruotando i manubri verso l'esterno partendo da davanti al viso e spingendoli sopra la testa, si stimolano il front delts e il lateral delts.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/seated_arnold_press.png" alt="Seated Arnold Press">
+            </td>
+        </tr>
+
+        <!-- Dorso -->
+        <tr>
+            <td>
+                <span class="exercise-number">#21</span>
+                <h2>Dumbbell Bent-Over Row</h2>
+                <span class="muscle-badge">Dorso</span>
+                <p>Rematore bilaterale. In piedi con il busto flesso in avanti a 45° e ginocchia leggermente piegate. Tira entrambi i manubri contemporaneamente verso la pancia mantenendo i gomiti stretti.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/bent_over_row.png" alt="Dumbbell Bent-Over Row">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#22</span>
+                <h2>One-Arm Dumbbell Bench Row</h2>
+                <span class="muscle-badge">Dorso</span>
+                <p>Appoggia un ginocchio e la mano dello stesso lato sulla panca piana. Con la schiena parallela al pavimento, tira il manubrio verso l'anca opposta portando il gomito in alto.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/one_arm_bench_row.png" alt="One-Arm Dumbbell Bench Row">
+            </td>
+        </tr>
+
+        <!-- Core -->
+        <tr>
+            <td>
+                <span class="exercise-number">#23</span>
+                <h2>Crunches</h2>
+                <span class="muscle-badge">Core</span>
+                <p>Disteso supino sul tappetino con le ginocchia piegate e i piedi a terra. Solleva solo la parte superiore della schiena e le scapole, concentrando la contrazione sull'addome.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/crunches.png" alt="Crunches">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#24</span>
+                <h2>Plank</h2>
+                <span class="muscle-badge">Core</span>
+                <p>Tenuta isometrica. Appoggia gli avambracci e le punte dei piedi sul tappetino. Mantieni il corpo perfettamente in linea come una tavola, attivando addome e glutei.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/plank.png" alt="Plank">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#25</span>
+                <h2>Russian Twists</h2>
+                <span class="muscle-badge">Core</span>
+                <p>Seduto sul tappetino, busto inclinato all'indietro a 45 gradi. Ruota il torace e le spalle da un lato all'altro in modo controllato (opzionale: impugna un manubrio per aumentare il carico).</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/russian_twists.png" alt="Russian Twists">
+            </td>
+        </tr>
+
+        <!-- Gambe e Glutei -->
+        <tr>
+            <td>
+                <span class="exercise-number">#26</span>
+                <h2>Wide-Stance Goblet Squat</h2>
+                <span class="muscle-badge">Gambe e Glutei</span>
+                <p>Sedendosi e alzandosi con i piedi ampiamente distanziati, si stimolano gli adductors.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/wide_stance_goblet_squat.png" alt="Wide-Stance Goblet Squat">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#27</span>
+                <h2>Narrow-Stance Goblet Squat</h2>
+                <span class="muscle-badge">Gambe e Glutei</span>
+                <p>Sedendosi e alzandosi con i piedi ravvicinati, si stimola il vastus lateralis.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/narrow_stance_goblet_squat.png" alt="Narrow-Stance Goblet Squat">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#28</span>
+                <h2>Standard-Stance Goblet Squat</h2>
+                <span class="muscle-badge">Gambe e Glutei</span>
+                <p>Sedendosi e alzandosi con i piedi a larghezza standard, si stimolano le legs overall.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/standard_stance_goblet_squat.png" alt="Standard-Stance Goblet Squat">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#29</span>
+                <h2>Lying Leg Curl</h2>
+                <span class="muscle-badge">Gambe e Glutei</span>
+                <p>Piegando le ginocchia e tirando il cuscinetto verso di sé, si stimolano gli hamstrings.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/lying_leg_curl.png" alt="Lying Leg Curl">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#30</span>
+                <h2>Dumbbell Stiff-Leg Deadlift</h2>
+                <span class="muscle-badge">Gambe e Glutei</span>
+                <p>Piegando leggermente le ginocchia, portando il bacino all'indietro, abbassando i manubri e poi ritornando su, si stimolano gli hamstrings e i glutes.<br><span style="display: inline-block; margin-top: 6px; color: #58a6ff; font-size: 0.85rem; font-weight: 500;">12-15 ripetizioni × 3-4 serie | Riposo 45-60 secondi</span></p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/dumbbell_stiff_leg_deadlift.png" alt="Dumbbell Stiff-Leg Deadlift">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="exercise-number">#31</span>
+                <h2>Dumbbell Bench Hip Thrust</h2>
+                <span class="muscle-badge">Gambe e Glutei</span>
+                <p>Siediti a terra appoggiando solo la parte alta della schiena sul lato lungo della panca piana. Posiziona un manubrio sul bacino e spingi i glutei verso l'alto fino ad allineare busto e cosce.</p>
+            </td>
+            <td class="col-image">
+                <img src="immagini/Dumbbell_Bench_Hip_Thrust.jpg" alt="Dumbbell Bench Hip Thrust">
+            </td>
+        </tr>
+
+    </table>
+
+    <script>
+        function showCategory(category) {
+            const rows = document.querySelectorAll('table tr');
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const badge = row.querySelector('.muscle-badge');
+                if (category === 'Tutti' || (badge && badge.textContent.trim().toLowerCase() === category.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-cat="${category}"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

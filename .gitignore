@@ -1,8 +1,28 @@
 node_modules/
 .claude/
+.zcode/
 .DS_Store
 *.py
-ex.html
 istruzioni_agente.md
-prompt_immagini.md
+prompt_immagini*.md
 istruzioni_gemini_*.md
+agents.md
+AGENTS.md
+
+# Cartelle temporanee di upload/aggiornamento
+aggiornamento_chest/
+aggiornamento_shoulder/
+aggiornamento_legs/
+scheda/
+
+# Immagini di lavorazione non utilizzate
+immagini/Bench_Bulgarian_Split_Squat.jpg
+immagini/Bench_Step_Up.jpg
+immagini/chest_supported_row.png
+immagini/dumbbell_bench_flyes.png
+immagini/dumbbell_bench_press.png
+immagini/dumbbell_bench_pullover.png
+immagini/incline_rear_delt_flyes.png
+immagini/seated_lateral_raises.png
+immagini/seated_overhead_extension.png
+immagini/spider_curl.png
