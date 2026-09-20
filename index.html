@@ -664,215 +664,100 @@
         /* =========================================================
            DATABASE ESERCIZI (asset riusabile)
            ========================================================= */
-        const EXERCISES = {
-            // Petto
-            "floor_press": { id: "floor_press", name: "Dumbbell Floor Press", muscleGroup: "Petto", sets: 4, reps: "10-12", description: "Disteso sulla schiena sul tappetino, spingi i manubri verso l'alto estendendo le braccia. I tricipiti toccano terra a ogni ripetizione in modo controllato." },
-            "floor_flyes": { id: "floor_flyes", name: "Dumbbell Floor Flyes", muscleGroup: "Petto", sets: 3, reps: "12-15", description: "Croci a terra. Disteso supino sul tappetino, braccia leggermente piegate, apri i manubri lateralmente descrivendo un ampio arco finché i gomiti e i tricipiti sfiorano il terreno." },
-            "push_ups": { id: "push_ups", name: "Push-ups", muscleGroup: "Petto", sets: 3, reps: "15-20", description: "Classici piegamenti sulle braccia eseguiti sul tappetino. Mantieni il core compatto, il corpo allineato dalle spalle ai piedi e scendi portando il petto vicino al pavimento." },
-            "decline_push_ups": { id: "decline_push_ups", name: "Decline Push-ups", muscleGroup: "Petto", sets: 3, reps: "10-15", description: "Piegamenti sulle braccia con i piedi sollevati e appoggiati sulla sedia, mani a terra sul tappetino. Focus sulla parte alta del petto (deltoide anteriore e clavicolare)." },
-            "incline_push_ups": { id: "incline_push_ups", name: "Incline Push-ups", muscleGroup: "Petto", sets: 3, reps: "15-20", description: "Piegamenti sulle braccia con le mani appoggiate sul bordo della sedia e i piedi a terra sul tappetino. Variante più leggera con focus sulla parte inferiore del petto." },
-            // Bicipiti
-            "bicep_curl": { id: "bicep_curl", name: "Dumbbell Bicep Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Flessione delle braccia in piedi o seduti sulla sedia, eseguendo una supinazione (rotazione del polso verso l'esterno) durante la fase di salita." },
-            "hammer_curl": { id: "hammer_curl", name: "Dumbbell Hammer Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Curl a martello. Flessione delle braccia mantenendo i palmi delle mani sempre rivolti l'uno verso l'altro (presa neutra) durante tutto il movimento." },
-            "concentration_curl": { id: "concentration_curl", name: "Seated Concentration Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Seduto sulla sedia con il busto flesso in avanti. Appoggia il gomito all'interno della coscia per bloccarlo e isolare completamente il bicipite durante la contrazione." },
-            "alternating_curl": { id: "alternating_curl", name: "Alternating Dumbbell Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "Curl classico eseguito alternando in modo fluido il braccio destro e il braccio sinistro a ogni ripetizione." },
-            "cross_body_curl": { id: "cross_body_curl", name: "Cross Body Hammer Curl", muscleGroup: "Bicipiti", sets: 3, reps: "10-12", description: "In piedi, afferra i manubri con presa neutra. Fletti un braccio portando il manubrio verso la spalla opposta, incrociando il petto. Ritorna lentamente alla posizione di partenza e alterna le braccia." },
-            // Tricipiti
-            "chair_dips": { id: "chair_dips", name: "Chair Dips", muscleGroup: "Tricipiti", sets: 3, reps: "10-15", description: "Mani appoggiate sul bordo della sedia, bacino molto vicino alla struttura, gambe distese o piegate a terra. Scendi flettendo i gomiti fino a circa 90° e spingi verso l'alto." },
-            "overhead_extension": { id: "overhead_extension", name: "Dumbbell Overhead Triceps Extension", muscleGroup: "Tricipiti", sets: 3, reps: "10-12", description: "Estensioni dietro la nuca. Seduto sulla sedia o in piedi, afferra un manubrio sopra la testa. Fletti i gomiti per far scendere il peso dietro la nuca, poi distendi di nuovo verso l'alto." },
-            "tricep_kickback": { id: "tricep_kickback", name: "Dumbbell Tricep Kickback", muscleGroup: "Tricipiti", sets: 3, reps: "10-12", description: "Busto flesso in avanti quasi parallelo al pavimento. Mantieni il braccio adeso al fianco e il gomito alto e immobile; estendi completamente l'avambraccio all'indietro." },
-            "skullcrusher": { id: "skullcrusher", name: "Lying Triceps Extension (Skullcrusher)", muscleGroup: "Tricipiti", sets: 3, reps: "10-12", description: "Disteso supino sul tappetino, braccia verticali perpendicolari al corpo. Fletti solo gli avambracci portando i manubri ai lati della testa, poi estendi nuovamente isolando i tricipiti." },
-            // Spalle
-            "overhead_press": { id: "overhead_press", name: "Seated Dumbbell Overhead Press", muscleGroup: "Spalle", sets: 4, reps: "8-10", description: "Spinte verticali. Seduto sulla sedia con la schiena ben dritta, spingi i manubri verso l'alto partendo dall'altezza delle spalle fino a distendere le braccia." },
-            "lateral_raises": { id: "lateral_raises", name: "Dumbbell Lateral Raises", muscleGroup: "Spalle", sets: 3, reps: "12-15", description: "Alzate laterali. In piedi, solleva i manubri lateralmente fino all'altezza delle spalle, mantenendo una leggera flessione del gomito e i mignoli leggermente ruotati verso l'alto." },
-            "front_raises": { id: "front_raises", name: "Dumbbell Front Raises", muscleGroup: "Spalle", sets: 3, reps: "10-12", description: "Alzate frontali. In piedi, solleva i manubri tesi in avanti alternandoli o contemporaneamente, fino all'altezza degli occhi." },
-            "rear_delt_flyes": { id: "rear_delt_flyes", name: "Bent-Over Rear Delt Flyes", muscleGroup: "Spalle", sets: 3, reps: "12-15", description: "Aperture posteriori. Busto flesso in avanti a circa 45 gradi, solleva i manubri lateralmente spingendo indietro i gomiti per allenare i deltoidi posteriori." },
-            // Dorso
-            "one_arm_row": { id: "one_arm_row", name: "One-Arm Dumbbell Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore singolo. Appoggia un ginocchio e la mano corrispondente sulla sedia per darti stabilità. Con l'altro braccio, tira il manubrio verso il fianco portando il gomito in alto e indietro." },
-            "bent_over_row": { id: "bent_over_row", name: "Dumbbell Bent-Over Row", muscleGroup: "Dorso", sets: 4, reps: "10-12", description: "Rematore bilaterale. In piedi con il busto fleso in avanti a 45° e ginocchia leggermente piegate. Tira entrambi i manubri contemporaneamente verso la pancia mantenendo i gomiti stretti." },
-            "pullover": { id: "pullover", name: "Dumbbell Pullover", muscleGroup: "Dorso", sets: 3, reps: "10-12", description: "Disteso sulla schiena sul tappetino, tieni un manubrio sopra il petto con braccia quasi tese. Porta il manubrio lentamente all'indietro oltre la testa sfiorando il pavimento, poi ritorna su contraendo il dorso." },
-            "superman": { id: "superman", name: "Superman", muscleGroup: "Dorso", sets: 3, reps: "12-15", description: "Disteso a pancia in giù sul tappetino, solleva contemporaneamente il petto, le braccia e le gambe contraendo la bassa schiena (lombari) e i glutei. Mantieni la posizione per un secondo." },
-            // Core
-            "crunches": { id: "crunches", name: "Crunches", muscleGroup: "Core", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino con le ginocchia piegate e i piedi a terra. Solleva solo la parte superiore della schiena e le scapole, concentrando la contrazione sull'addome." },
-            "plank": { id: "plank", name: "Plank", muscleGroup: "Core", sets: 3, reps: "30-60 sec", description: "Tenuta isometrica. Appoggia gli avambracci e le punte dei piedi sul tappetino. Mantieni il corpo perfettamente in linea come una tavola, attivando addome e glutei." },
-            "russian_twists": { id: "russian_twists", name: "Russian Twists", muscleGroup: "Core", sets: 3, reps: "20 (10+10)", description: "Seduto sul tappetino, busto inclinato all'indietro a 45 gradi. Ruota il torace e le spalle da un lato all'altro in modo controllato (opzionale: impugna un manubrio per aumentare il carico)." },
-            "leg_raises": { id: "leg_raises", name: "Leg Raises", muscleGroup: "Core", sets: 3, reps: "12-15", description: "Sollevamento gambe. Disteso supino sul tappetino, solleva le gambe tese insieme fino a formare un angolo di 90°, poi scendi lentamente senza toccare terra per mantenere la tensione." },
-            // Gambe
-            "bulgarian_split_squat": { id: "bulgarian_split_squat", name: "Bulgarian Split Squat", muscleGroup: "Gambe", sets: 4, reps: "10-12 per gamba", description: "Squat bulgaro. Posiziona un piede all'indietro in appoggio stabile sulla sedia e l'altro in avanti a terra. Scendi in affondo verticale mantenendo il busto dritto e impugnando i manubri." },
-            "chair_step_ups": { id: "chair_step_ups", name: "Chair Step-Ups", muscleGroup: "Gambe", sets: 3, reps: "10-12 per gamba", description: "Salite sulla sedia. Posizionati in piedi di fronte alla sedia con i manubri in mano. Sali sulla sedia con un piede spingendo con la gamba, solleva tutto il corpo e riscendi in modo controllato." },
-            "goblet_squat": { id: "goblet_squat", name: "Dumbbell Goblet Squat", muscleGroup: "Gambe", sets: 4, reps: "12-15", description: "Squat classico tenendo un singolo manubrio in verticale davanti al petto stretto tra le mani. Scendi con il bacino rompendo il parallelo (puoi usare la sedia dietro di te come riferimento di profondità)." },
-            // Glutei
-            "glute_bridge": { id: "glute_bridge", name: "Dumbbell Glute Bridge", muscleGroup: "Glutei", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino con le ginocchia piegate e i piedi a terra. Posiziona un manubrio all'altezza del bacino. Solleva il bacino contraendo i glutei fino a formare una linea retta tra ginocchia, bacino e spalle." },
-            "sumo_squat": { id: "sumo_squat", name: "Dumbbell Sumo Squat", muscleGroup: "Glutei", sets: 4, reps: "12-15", description: "In piedi con le gambe divaricate oltre la larghezza delle spalle e le punte dei piedi rivolte verso l'esterno. Impugna un manubrio con entrambe le mani al centro. Scendi in squat spingendo le ginocchia in fuori, mantenendo il busto dritto, poi risali contraendo i glutei." },
-            "frog_glute_bridge": { id: "frog_glute_bridge", name: "Frog Glute Bridge", muscleGroup: "Glutei", sets: 3, reps: "15-20", description: "Disteso supino sul tappetino. Unisci le piante dei piedi lasciando cadere le ginocchia verso l'esterno a farfalla. Posiziona un manubrio sul bacino e solleva il bacino da terra contraendo i glutei." }
-        };
+const EXERCISES = {
+    "neutral_close_grip_dumbbell_press": { id: "neutral_close_grip_dumbbell_press", name: "Neutral Close-Grip Dumbbell Press", muscleGroup: "Petto", sets: "3-4", reps: "12-15", description: "Spingendo i manubri uniti con presa neutra verso l'alto, si stimola la parte interna del petto (inner chest)." },
+    "incline_dumbbell_press": { id: "incline_dumbbell_press", name: "Incline Dumbbell Press", muscleGroup: "Petto", sets: "3-4", reps: "12-15", description: "Spingendo i manubri verso l'alto su una panca inclinata, si stimola la parte superiore del petto (upper chest)." },
+    "standard_dumbbell_press": { id: "standard_dumbbell_press", name: "Standard Dumbbell Press", muscleGroup: "Petto", sets: "3-4", reps: "12-15", description: "Abbassando i manubri ai lati del petto su una panca piana e spingendoli verso l'alto, si stimola l'intero petto (chest overall)." },
+    "dumbbell_fly": { id: "dumbbell_fly", name: "Dumbbell Fly", muscleGroup: "Petto", sets: "3-4", reps: "12-15", description: "Allargando le braccia per allungare e poi unendole, si stimola l'intero petto (chest overall)." },
+    "dumbbell_pullover": { id: "dumbbell_pullover", name: "Dumbbell Pullover", muscleGroup: "Petto", sets: "3-4", reps: "12-15", description: "Abbassando il manubrio dietro la testa e portandolo sopra il petto, si stimola la parte inferiore del petto (lower chest)." },
+    "reverse_grip_dumbbell_press": { id: "reverse_grip_dumbbell_press", name: "Reverse-Grip Dumbbell Press", muscleGroup: "Petto", sets: "3-4", reps: "12-15", description: "Afferrando i manubri con presa inversa e spingendoli verso l'alto, si stimola la parte superiore del petto (upper chest)." },
+    "bicep_curl": { id: "bicep_curl", name: "Dumbbell Bicep Curl", muscleGroup: "Bicipiti", sets: "3-4", reps: "12-15", description: "Flessione delle braccia in piedi o seduti sulla sedia, eseguendo una supinazione (rotazione del polso verso l'esterno) durante la fase di salita." },
+    "hammer_curl": { id: "hammer_curl", name: "Dumbbell Hammer Curl", muscleGroup: "Bicipiti", sets: "3-4", reps: "12-15", description: "Curl a martello. Flessione delle braccia mantenendo i palmi delle mani sempre rivolti l'uno verso l'altro (presa neutra) durante tutto il movimento." },
+    "alternating_curl": { id: "alternating_curl", name: "Alternating Dumbbell Curl", muscleGroup: "Bicipiti", sets: "3-4", reps: "12-15", description: "Curl classico eseguito alternando in modo fluido il braccio destro e il braccio sinistro a ogni ripetizione." },
+    "cross_body_curl": { id: "cross_body_curl", name: "Cross Body Hammer Curl", muscleGroup: "Bicipiti", sets: "3-4", reps: "12-15", description: "In piedi, afferra i manubri con presa neutra. Fletti un braccio portando il manubrio verso la spalla opposta, incrociando il petto. Ritorna lentamente alla posizione di partenza e alterna le braccia." },
+    "incline_bicep_curl": { id: "incline_bicep_curl", name: "Incline Dumbbell Bicep Curl", muscleGroup: "Bicipiti", sets: "3-4", reps: "12-15", description: "Panca a 45-60°. Seduto, esegui il classico curl con manubri. La posizione del braccio dietro la linea del busto garantisce il massimo allungamento del capo lungo del bicipite." },
+    "1_triceps_Overhead_DB_Tricep_Extension": { id: "1_triceps_Overhead_DB_Tricep_Extension", name: "Triceps Overhead DB Extension", muscleGroup: "Tricipiti", sets: "3-4", reps: "12-15", description: "Estensioni dietro la nuca su panca. Seduto sulla panca con schienale verticale a 90° per stabilizzare la schiena, afferra il manubrio con entrambe le mani sopra la testa. Fletti i gomiti portando il peso dietro la nuca per il massimo allungamento, poi distendi le braccia verso l'alto contraendo i tricipiti." },
+    "tricep_kickback": { id: "tricep_kickback", name: "Dumbbell Tricep Kickback", muscleGroup: "Tricipiti", sets: "3-4", reps: "12-15", description: "Busto flesso in avanti quasi parallelo al pavimento. Mantieni il braccio adeso al fianco e il gomito alto e immobile; estendi completamente l'avambraccio all'indietro." },
+    "lying_triceps_extension": { id: "lying_triceps_extension", name: "Lying Dumbbell Triceps Extension", muscleGroup: "Tricipiti", sets: "3-4", reps: "12-15", description: "Su panca piana. Sdraiato, tieni i manubri con le braccia tese verso l'alto. Piega solo i gomiti portando i pesi ai lati della testa, poi distendi verso il soffitto." },
+    "seated_side_lateral_raise": { id: "seated_side_lateral_raise", name: "Seated Side Lateral Raise", muscleGroup: "Spalle", sets: "3-4", reps: "12-15", description: "Sedendosi su una panca per bloccare il busto e sollevando i manubri lateralmente, si stimola il lateral delts." },
+    "seated_front_raise": { id: "seated_front_raise", name: "Seated Front Raise", muscleGroup: "Spalle", sets: "3-4", reps: "12-15", description: "Sedendosi su una panca per bloccare il busto e sollevando i manubri in avanti fino all'altezza delle spalle, si stimola il front delts." },
+    "seated_shoulder_press": { id: "seated_shoulder_press", name: "Seated Shoulder Press", muscleGroup: "Spalle", sets: "3-4", reps: "12-15", description: "Fissando la schiena alla panca e spingendo i manubri dall'altezza delle spalle fin sopra la testa, si stimolano il front delts e il lateral delts." },
+    "seated_front_press": { id: "seated_front_press", name: "Seated Front Press", muscleGroup: "Spalle", sets: "3-4", reps: "12-15", description: "Riunendo i manubri davanti al petto e spingendoli in avanti e verso l'alto, si stimola il front delts." },
+    "seated_bent_over_lateral_raise": { id: "seated_bent_over_lateral_raise", name: "Seated Bent-Over Lateral Raise", muscleGroup: "Spalle", sets: "3-4", reps: "12-15", description: "Inclinando il busto in avanti e sollevando i manubri lateralmente, si stimola il rear delts." },
+    "seated_arnold_press": { id: "seated_arnold_press", name: "Seated Arnold Press", muscleGroup: "Spalle", sets: "3-4", reps: "12-15", description: "Ruotando i manubri verso l'esterno partendo da davanti al viso e spingendoli sopra la testa, si stimolano il front delts e il lateral delts." },
+    "bent_over_row": { id: "bent_over_row", name: "Dumbbell Bent-Over Row", muscleGroup: "Dorso", sets: "3-4", reps: "12-15", description: "Rematore bilaterale. In piedi con il busto flesso in avanti a 45° e ginocchia leggermente piegate. Tira entrambi i manubri contemporaneamente verso la pancia mantenendo i gomiti stretti." },
+    "one_arm_bench_row": { id: "one_arm_bench_row", name: "One-Arm Dumbbell Bench Row", muscleGroup: "Dorso", sets: "3-4", reps: "12-15", description: "Appoggia un ginocchio e la mano dello stesso lato sulla panca piana. Con la schiena parallela al pavimento, tira il manubrio verso l'anca opposta portando il gomito in alto." },
+    "crunches": { id: "crunches", name: "Crunches", muscleGroup: "Core", sets: "3-4", reps: "12-15", description: "Disteso supino sul tappetino con le ginocchia piegate e i piedi a terra. Solleva solo la parte superiore della schiena e le scapole, concentrando la contrazione sull'addome." },
+    "plank": { id: "plank", name: "Plank", muscleGroup: "Core", sets: "3-4", reps: "12-15", description: "Tenuta isometrica. Appoggia gli avambracci e le punte dei piedi sul tappetino. Mantieni il corpo perfettamente in linea come una tavola, attivando addome e glutei." },
+    "russian_twists": { id: "russian_twists", name: "Russian Twists", muscleGroup: "Core", sets: "3-4", reps: "12-15", description: "Seduto sul tappetino, busto inclinato all'indietro a 45 gradi. Ruota il torace e le spalle da un lato all'altro in modo controllato (opzionale: impugna un manubrio per aumentare il carico)." },
+    "wide_stance_goblet_squat": { id: "wide_stance_goblet_squat", name: "Wide-Stance Goblet Squat", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Sedendosi e alzandosi con i piedi ampiamente distanziati, si stimolano gli adductors." },
+    "narrow_stance_goblet_squat": { id: "narrow_stance_goblet_squat", name: "Narrow-Stance Goblet Squat", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Sedendosi e alzandosi con i piedi ravvicinati, si stimola il vastus lateralis." },
+    "standard_stance_goblet_squat": { id: "standard_stance_goblet_squat", name: "Standard-Stance Goblet Squat", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Sedendosi e alzandosi con i piedi a larghezza standard, si stimolano le legs overall." },
+    "lying_leg_curl": { id: "lying_leg_curl", name: "Lying Leg Curl", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Piegando le ginocchia e tirando il cuscinetto verso di sé, si stimolano gli hamstrings." },
+    "dumbbell_stiff_leg_deadlift": { id: "dumbbell_stiff_leg_deadlift", name: "Dumbbell Stiff-Leg Deadlift", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Piegando leggermente le ginocchia, portando il bacino all'indietro, abbassando i manubri e poi ritornando su, si stimolano gli hamstrings e i glutes." },
+    "Dumbbell_Bench_Hip_Thrust": { id: "Dumbbell_Bench_Hip_Thrust", name: "Dumbbell Bench Hip Thrust", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Siediti a terra appoggiando solo la parte alta della schiena sul lato lungo della panca piana. Posiziona un manubrio sul bacino e spingi i glutei verso l'alto fino ad allineare busto e cosce." },
+};
 
-        /* =========================================================
-           PROGRAMMA SETTIMANALE (template ricorrente)
-           Chiavi = abbreviazioni giorno italiane. null = riposo.
-           FACILMENTE EDITABILE: cambia gli id qui sotto per
-           modificare il programma. L'architettura non cambia.
-           ========================================================= */
-        const WEEK_PLAN = {
-            "Lun": ["floor_press", "push_ups", "decline_push_ups", "one_arm_row", "bent_over_row", "superman", "crunches", "plank"],          // Petto + Dorso + Core
-            "Mar": ["overhead_press", "lateral_raises", "rear_delt_flyes", "bicep_curl", "hammer_curl", "chair_dips", "overhead_extension"], // Spalle + Braccia
-            "Mer": null,                                                                                                                       // RIPOSO
-            "Gio": ["floor_flyes", "incline_push_ups", "bulgarian_split_squat", "goblet_squat", "glute_bridge", "sumo_squat", "russian_twists", "leg_raises"], // Petto + Gambe + Glutei + Core
-            "Ven": ["pullover", "one_arm_row", "concentration_curl", "alternating_curl", "cross_body_curl", "tricep_kickback", "skullcrusher"], // Dorso + Braccia
-            "Sab": ["front_raises", "overhead_press", "chair_step_ups", "frog_glute_bridge", "plank", "leg_raises"],                            // Spalle + Gambe + Glutei + Core
-            "Dom": null                                                                                                                        // RIPOSO
-        };
+let selectedDate = '';
 
-        // Mappa data ISO → chiave WEEK_PLAN (0=Domenica come getDay)
-        const ISO_TO_WEEKDAY = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+        // Configurazione delle categorie disponibili (ricavate dal database, più "Tutti")
+        const GROUPS = ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei"];
 
-        let selectedDate = '';
-
-        /* =========================================================
-           SINCRONIZZAZIONE CLOUD (Supabase) — riutilizzata
-           localStorage resta la cache locale (l'app funziona offline);
-           Supabase è lo strato di sync tra dispositivi.
-           Codice di sync FISSO: tutti i dispositivi che aprono questa
-           URL condividono gli stessi dati, senza alcuna azione utente.
-           ========================================================= */
-        const SB_URL = "https://rvckscsahnswceiajqve.supabase.co";
-        const SB_KEY = "sb_publishable_5w1S1F7BX9yndp4vy0-vFw_s4h8jd0l";
-        const SYNC_CODE = "workout-sync-8f3a7c21d9e4";
-        const SB_HEADERS = {
-            'apikey': SB_KEY,
-            'Authorization': 'Bearer ' + SB_KEY,
-            'Content-Type': 'application/json'
-        };
-
-        function localData() {
-            return { steps_history: getStepsHistory(), wlog: getWorkoutLog() };
-        }
-        function applyData(d) {
-            localStorage.setItem('steps_history', JSON.stringify(d.steps_history || {}));
-            localStorage.setItem('wlog', JSON.stringify(d.wlog || {}));
-        }
-        // Unione non distruttiva: "over" vince sui conflitti, ma le chiavi disgiunte si conservano
-        function mergeData(base, over) {
-            base = base || {}; over = over || {};
-            const wl = { ...(base.wlog || {}) };
-            const oWl = over.wlog || {};
-            for (const date in oWl) wl[date] = { ...(wl[date] || {}), ...oWl[date] };
-            return {
-                steps_history: { ...(base.steps_history || {}), ...(over.steps_history || {}) },
-                wlog: wl
-            };
-        }
-
-        async function cloudFetch() {
-            const r = await fetch(`${SB_URL}/rest/v1/workout_sync?sync_code=eq.${SYNC_CODE}&select=data`, { headers: SB_HEADERS });
-            if (!r.ok) throw new Error('GET ' + r.status);
-            const rows = await r.json();
-            return rows.length ? rows[0].data : { steps_history: {}, wlog: {} };
-        }
-
-        let cloudBusy = false, pushTimer = null;
-
-        async function cloudPull() {
-            // non disturbare l'editing in corso (input passi)
-            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
-            try {
-                const remote = await cloudFetch();
-                const merged = mergeData(localData(), remote); // il remoto vince in pull
-                applyData(merged);
-                rerenderCurrent();
-            } catch (e) { console.warn('cloudPull fallita (offline?):', e.message); }
-        }
-
-        async function cloudPush() {
-            if (cloudBusy) return;
-            cloudBusy = true;
-            try {
-                const remote = await cloudFetch();
-                const merged = mergeData(remote, localData()); // il locale vince in push (appena modificato)
-                applyData(merged);
-                await fetch(`${SB_URL}/rest/v1/workout_sync`, {
-                    method: 'POST',
-                    headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify({ sync_code: SYNC_CODE, data: merged, updated_at: new Date().toISOString() })
-                });
-            } catch (e) { console.warn('cloudPush fallita (offline?):', e.message); }
-            finally { cloudBusy = false; }
-        }
-
-        function scheduleCloudPush() {
-            clearTimeout(pushTimer);
-            pushTimer = setTimeout(cloudPush, 800); // coalescenza di salvataggi ravvicinati
-        }
-
-        // Re-render della vista corrente dopo un pull
-        function rerenderCurrent() {
-            if (document.getElementById('statistiche-section').style.display === 'block') {
-                const period = (document.querySelector('.stats-tab.active') || {}).dataset?.period || 'settimana';
-                switchStatsPeriod(period);
-            } else if (selectedDate) {
-                selectDate(selectedDate);
+        // Funzione per impostare o togliere il giorno di Riposo
+        function toggleRestDay(iso) {
+            const log = getWorkoutLog();
+            if (!log[iso]) log[iso] = {};
+            
+            if (log[iso].is_rest) {
+                delete log[iso].is_rest;
+                if (Object.keys(log[iso]).length === 0) delete log[iso];
+            } else {
+                log[iso] = { is_rest: true };
             }
+            
+            localStorage.setItem('wlog', JSON.stringify(log));
+            scheduleCloudPush();
+            
+            // Aggiorna classe calendario
+            const btn = document.querySelector(`.day-btn[data-date="${iso}"]`);
+            if (btn) {
+                if (log[iso] && log[iso].is_rest) btn.classList.add('rest');
+                else btn.classList.remove('rest');
+            }
+            
+            // Re-render
+            selectDate(iso);
         }
 
-        // Data ISO YYYY-MM-DD in fuso LOCALE (NON usare toISOString che è UTC e può sfasare il giorno)
-        function toISO(d) {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
-        }
-
-        const WEEKDAY_NAMES = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-        const MONTH_NAMES = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-
-        /* =========================================================
-           PROGRAMMA: render bottoni settimana + vista giorno
-           ========================================================= */
-        function renderDayButtons() {
+        // Renderizza il container dei giorni (calendario scrollabile)
+        function generateDays() {
             const container = document.getElementById('days-container');
             container.innerHTML = '';
-            // Abbreviazioni indicizzate per getDay() (0=Dom ... 6=Sab)
-            const abbr = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
+            const abbr = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
             const today = new Date();
             const todayISO = toISO(today);
+            const log = getWorkoutLog();
 
-            // Mostra OGGI + prossimi 6 giorni (anteprima delle prossime giornate).
-            // Il primo bottone è sempre oggi; ieri e i giorni passati non sono mostrati.
+            // Partiamo da oggi fino a 6 giorni nel futuro (7 giorni totali)
             for (let i = 0; i < 7; i++) {
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
                 const iso = toISO(d);
-                const weekday = ISO_TO_WEEKDAY[d.getDay()];
                 const btn = document.createElement('button');
                 btn.className = 'day-btn';
                 btn.dataset.date = iso;
                 if (iso === todayISO) btn.classList.add('today');
-                if (!WEEK_PLAN[weekday]) btn.classList.add('rest'); // giorno senza programma = riposo
+                
+                // Coloriamo come riposo se esplicitamente marcato nel log
+                if (log[iso] && log[iso].is_rest) btn.classList.add('rest');
+                
                 btn.innerHTML = `${abbr[d.getDay()]}<span class="day-num">${d.getDate()}</span>`;
                 btn.onclick = () => selectDate(iso);
                 container.appendChild(btn);
             }
         }
 
-        // Navigazione tab
-        function switchTab(tabName) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
-
-            document.getElementById('programma-section').style.display = 'none';
-            document.getElementById('esercizi-section').style.display = 'none';
-            document.getElementById('statistiche-section').style.display = 'none';
-
-            document.getElementById(`${tabName}-section`).style.display = 'block';
-
-            if (tabName === 'esercizi') {
-                renderExerciseDatabase('tutti');
-            } else if (tabName === 'statistiche') {
-                switchStatsPeriod('settimana');
-            }
-        }
-
-        // Cuore del tab Programma
+        // Cuore del tab Programma: selectDate
         function selectDate(iso) {
             selectedDate = iso;
             refreshStepsSection(iso);
@@ -883,70 +768,67 @@
             document.getElementById('workout-container').style.display = 'block';
 
             const d = new Date(iso + 'T12:00:00');
-            const weekday = ISO_TO_WEEKDAY[d.getDay()];
             document.getElementById('day-title').textContent =
                 `${WEEKDAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 
             const list = document.getElementById('exercises-list');
             list.innerHTML = '';
 
-            const dayExercises = WEEK_PLAN[weekday];
-            if (!dayExercises || dayExercises.length === 0) {
+            const log = getWorkoutLog();
+            const dayLog = log[iso] || {};
+
+            if (dayLog.is_rest) {
                 document.getElementById('day-subtitle').textContent = '';
                 list.innerHTML = `
-                  <div class="rest-day">
+                  <div class="rest-day" style="text-align: center;">
                     <div class="rest-emoji">😴</div>
                     <p class="rest-title">Giorno di Riposo</p>
                     <p class="rest-subtitle">Recupera le energie per la prossima sessione!</p>
+                    <button class="db-filter-btn" style="margin-top:15px; border-color:#8b949e; color:#c9d1d9;" onclick="toggleRestDay('${iso}')">Annulla Riposo</button>
                   </div>`;
                 return;
             }
 
+            // Conta gli esercizi completati (escludendo eventuali chiavi speciali come passi o note se presenti in futuro, qui controlliamo solo quelli in EXERCISES)
+            const doneCount = Object.keys(dayLog).filter(k => EXERCISES[k]).length;
+            document.getElementById('day-subtitle').textContent = `${doneCount} esercizi completati in questa giornata`;
+
+            // UI Libera: Pulsante per impostare il riposo
+            let uiHTML = `
+                <div style="text-align:center; margin-bottom:20px;">
+                   <button class="db-filter-btn" style="background:#238636; color:white; border-color:#2ea043; padding: 10px 20px; font-weight: 600;" onclick="toggleRestDay('${iso}')">😴 Segna come Giorno di Riposo</button>
+                </div>
+                <div id="day-filter-container" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #30363d;">
+            `;
+            
+            GROUPS.forEach(g => {
+                const isActive = g === 'Tutti' ? 'active' : '';
+                uiHTML += `<button class="db-filter-btn day-group-btn ${isActive}" data-group="${g}" onclick="renderDayExercises('${iso}', '${g}')">${g}</button>`;
+            });
+            uiHTML += `</div><div id="day-exercises-container"></div>`;
+            
+            list.innerHTML = uiHTML;
+            renderDayExercises(iso, 'Tutti');
+        }
+        
+        function renderDayExercises(iso, groupFilter) {
+            // Aggiorna filtri attivi
+            document.querySelectorAll('.day-group-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.group === groupFilter);
+            });
+            
+            const container = document.getElementById('day-exercises-container');
+            container.innerHTML = '';
+            
             const log = getWorkoutLog();
             const dayLog = log[iso] || {};
-
-            // sottotitolo: gruppi muscolari del giorno + progresso spunte
-            const groups = [...new Set(
-                dayExercises.map(id => EXERCISES[id] && EXERCISES[id].muscleGroup).filter(Boolean)
-            )];
-            const doneCount = dayExercises.filter(id => dayLog[id]).length;
-            document.getElementById('day-subtitle').textContent =
-                `${groups.join(' + ')} · ${doneCount}/${dayExercises.length} completati`;
-
-            dayExercises.forEach(id => {
-                const card = buildWorkoutCard(id, iso, !!dayLog[id]);
-                list.appendChild(card);
+            
+            Object.values(EXERCISES).forEach(exercise => {
+                if (groupFilter !== 'Tutti' && exercise.muscleGroup !== groupFilter) return;
+                const isDone = !!dayLog[exercise.id];
+                const card = buildWorkoutCard(exercise.id, iso, isDone);
+                container.appendChild(card);
             });
-        }
-
-        // Card esercizio con checkbox "fatto"
-        function buildWorkoutCard(id, iso, done) {
-            const exercise = EXERCISES[id];
-            if (!exercise) return document.createElement('div');
-
-            const badgeClass = `badge-${exercise.muscleGroup.toLowerCase()}`;
-            let repsText = `${exercise.sets} serie × ${exercise.reps}`;
-            if (!exercise.reps.includes('sec') && !exercise.reps.includes('per gamba')) {
-                repsText += ' rip.';
-            }
-
-            const card = document.createElement('div');
-            card.className = 'exercise-card' + (done ? ' done' : '');
-            card.dataset.exerciseId = id;
-            card.innerHTML = `
-                <div class="exercise-card-image"><img src="immagini/${id}.png" alt="${exercise.name}"></div>
-                <div class="exercise-header">
-                    <span class="exercise-name">${exercise.name}</span>
-                    <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
-                </div>
-                <div class="exercise-sets">${repsText}</div>
-                <button class="toggle-desc-btn" onclick="toggleDescription(this)">Mostra dettagli ▼</button>
-                <div class="exercise-desc">${exercise.description}</div>
-                <button class="done-btn${done ? ' done' : ''}" onclick="toggleDone('${id}')">
-                    <span class="check">✓</span>
-                    <span class="done-label">${done ? 'Fatto' : 'Segna come fatto'}</span>
-                </button>`;
-            return card;
         }
 
         // Toggle spunta esercizio: 1 tap = fatto/non fatto
@@ -958,13 +840,11 @@
             if (nowDone) log[selectedDate][exerciseId] = true;
             else delete log[selectedDate][exerciseId];
 
-            // cleanup: se la data è vuota, rimuovi la chiave
             if (Object.keys(log[selectedDate]).length === 0) delete log[selectedDate];
 
             localStorage.setItem('wlog', JSON.stringify(log));
             scheduleCloudPush();
 
-            // refresh visivo solo della card interessata + header (più rapido di un full re-render)
             const card = document.querySelector(`.exercise-card[data-exercise-id="${exerciseId}"]`);
             if (card) {
                 card.classList.toggle('done', nowDone);
@@ -976,26 +856,10 @@
                 }
             }
 
-            // aggiorna progresso nell'header
-            const weekday = ISO_TO_WEEKDAY[new Date(selectedDate + 'T12:00:00').getDay()];
-            const dayExercises = WEEK_PLAN[weekday] || [];
+            // aggiorna conteggio
             const dayLog = log[selectedDate] || {};
-            const groups = [...new Set(dayExercises.map(id => EXERCISES[id] && EXERCISES[id].muscleGroup).filter(Boolean))];
-            const doneCount = dayExercises.filter(id => dayLog[id]).length;
-            document.getElementById('day-subtitle').textContent =
-                `${groups.join(' + ')} · ${doneCount}/${dayExercises.length} completati`;
-        }
-
-        // Toggle descrizione (unificato, usato sia da Programma che da DB)
-        function toggleDescription(btn) {
-            const desc = btn.nextElementSibling;
-            if (desc.style.display === 'none' || desc.style.display === '') {
-                desc.style.display = 'block';
-                btn.textContent = 'Nascondi dettagli ▲';
-            } else {
-                desc.style.display = 'none';
-                btn.textContent = 'Mostra dettagli ▼';
-            }
+            const doneCount = Object.keys(dayLog).filter(k => EXERCISES[k]).length;
+            document.getElementById('day-subtitle').textContent = `${doneCount} esercizi completati in questa giornata`;
         }
 
         /* =========================================================
