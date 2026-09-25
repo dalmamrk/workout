@@ -3,9 +3,13 @@ node_modules/
 .zcode/
 .DS_Store
 *.py
+verifica.js
+_archivio/
+avanzamento_piano.md
 istruzioni_agente.md
 prompt_immagini*.md
 istruzioni_gemini_*.md
+piano_implemento_workout*.md
 agents.md
 AGENTS.md
 
