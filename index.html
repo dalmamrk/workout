@@ -733,43 +733,113 @@
         }
 
         /* =========================================================
-           STORAGE (localStorage + cloud stubs)
+           STORAGE (localStorage centralizzato)
+           Unica lettura: loadLog()/loadSteps(); unica scrittura:
+           saveLog()/saveStepsData(). Se il JSON è corrotto la pagina
+           non si rompe: il valore originale viene copiato in
+           <chiave>_corrupt_<timestamp>, compare un messaggio leggibile
+           e la lettura torna {} (l'utente può recuperare dal backup).
            ========================================================= */
-        function getWorkoutLog() {
+        const _storageWarned = { wlog: false, steps_history: false };
+
+        function warnStorageError(key, err) {
+            console.error('[Storage] JSON corrotto in ' + key + ':', err);
+            if (!_storageWarned[key]) {
+                _storageWarned[key] = true;
+                const status = document.getElementById('data-status');
+                if (status) {
+                    status.textContent = '⚠️ Dati locali (' + key + ') non leggibili: l\'originale è salvato in ' + key + '_corrupt_<data>. Esporta i dati che recuperi e reimportali.';
+                    status.style.color = '#e3b341';
+                }
+            }
+        }
+
+        function loadLog() {
             const data = localStorage.getItem('wlog');
-            return data ? JSON.parse(data) : {};
+            if (!data) return {};
+            try { return JSON.parse(data); }
+            catch (err) {
+                const ts = new Date().toISOString().replace(/[:.]/g, '-');
+                try { localStorage.setItem('wlog_corrupt_' + ts, data); } catch (_) {}
+                warnStorageError('wlog', err);
+                return {};
+            }
         }
 
-        function getStepsHistory() {
+        function saveLog(log) {
+            localStorage.setItem('wlog', JSON.stringify(log));
+        }
+
+        function loadSteps() {
             const data = localStorage.getItem('steps_history');
-            return data ? JSON.parse(data) : {};
+            if (!data) return {};
+            try { return JSON.parse(data); }
+            catch (err) {
+                const ts = new Date().toISOString().replace(/[:.]/g, '-');
+                try { localStorage.setItem('steps_history_corrupt_' + ts, data); } catch (_) {}
+                warnStorageError('steps_history', err);
+                return {};
+            }
         }
 
-        // Cloud sync stubs — pronti per Firebase
-        let _cloudPushTimer = null;
-        function scheduleCloudPush() {
-            // Debounce: aspetta 2 secondi prima di pushare
-            clearTimeout(_cloudPushTimer);
-            _cloudPushTimer = setTimeout(() => {
-                // TODO: Quando Firebase sarà configurato, qui chiameremo cloudPush()
-                console.log('[Cloud] Push schedulato (stub — localStorage only)');
-            }, 2000);
+        function saveStepsData(history) {
+            localStorage.setItem('steps_history', JSON.stringify(history));
         }
 
-        async function cloudPull() {
-            // TODO: Quando Firebase sarà configurato, qui leggeremo da Firestore
-            console.log('[Cloud] Pull eseguito (stub — localStorage only)');
+        /* =========================================================
+           BACKUP LOCALE AUTOMATICO (wlog_backup)
+           Snapshot {at, log, steps}: mantiene solo gli ultimi 3,
+           con limite indicativo di ~500 KB totali (scarta dal più
+           vecchio). Chiamato prima di ogni import e al massimo una
+           volta al giorno all'avvio (marker wlog_backup_last_day).
+           ========================================================= */
+        const BACKUP_KEY = 'wlog_backup';
+        const BACKUP_MAX = 3;
+        const BACKUP_MAX_BYTES = 512 * 1024;
+
+        function takeBackup() {
+            try {
+                const log = loadLog();
+                const steps = loadSteps();
+                if (Object.keys(log).length === 0 && Object.keys(steps).length === 0) return;
+                let backups = [];
+                const raw = localStorage.getItem(BACKUP_KEY);
+                if (raw) { try { backups = JSON.parse(raw); } catch (_) { backups = []; } }
+                if (!Array.isArray(backups)) backups = [];
+                backups.push({ at: new Date().toISOString(), log: log, steps: steps });
+                while (backups.length > BACKUP_MAX) backups.shift();
+                while (backups.length > 1 && JSON.stringify(backups).length > BACKUP_MAX_BYTES) backups.shift();
+                localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+            } catch (err) {
+                console.error('[Backup] Errore durante lo snapshot:', err);
+            }
         }
+
+        function maybeDailyBackup() {
+            const today = toISO(new Date());
+            if (localStorage.getItem('wlog_backup_last_day') === today) return;
+            try { takeBackup(); } catch (_) {}
+            try { localStorage.setItem('wlog_backup_last_day', today); } catch (_) {}
+        }
+
+        /* [Punto d'aggancio Fase 4 — sincronizzazione reale]
+           Gli stub scheduleCloudPush()/cloudPull() sono stati rimossi
+           (non simulavano nulla e il polling fisso di 20s è eliminato).
+           Qui andranno le funzioni di sync del provider scelto
+           dall'utente: lettura al caricamento e al ritorno in
+           foreground, niente setInterval. Finché non c'è, i dati
+           restano solo su questo dispositivo (export/import JSON =
+           piano di recupero). */
 
         /* =========================================================
            EXPORT / IMPORT DATI
            ========================================================= */
         function exportData() {
             const data = {
-                version: 1,
+                version: 2,
                 exported_at: new Date().toISOString(),
-                workout_log: getWorkoutLog(),
-                steps_history: getStepsHistory()
+                workout_log: loadLog(),
+                steps_history: loadSteps()
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -800,42 +870,71 @@
                         throw new Error('Formato non valido');
                     }
 
-                    // Merge intelligente: i dati importati vengono uniti con quelli esistenti
-                    // Per le date già presenti, i dati importati sovrascrivono
-                    const currentLog = getWorkoutLog();
-                    const currentSteps = getStepsHistory();
+                    // Versione accettata: 2 (attuale) e 1 (storico); è ammessa anche
+                    // l'assenza del campo. Versioni non intere o inferiori a 1: rifiuto.
+                    if (data.version !== undefined && (!Number.isInteger(data.version) || data.version < 1)) {
+                        throw new Error('Versione non supportata');
+                    }
 
-                    const mergedLog = { ...currentLog, ...data.workout_log };
-                    const mergedSteps = { ...currentSteps, ...data.steps_history };
+                    // Backup locale prima di ogni import (max 3 snapshot, ~500 KB totali)
+                    takeBackup();
 
-                    localStorage.setItem('wlog', JSON.stringify(mergedLog));
-                    localStorage.setItem('steps_history', JSON.stringify(mergedSteps));
+                    // Merge per data: le date diverse si uniscono sempre. Se la data è
+                    // presente in entrambi e il contenuto differisce, si chiede una sola
+                    // conferma riepilogativa (numero di date in conflitto) prima di
+                    // sovrascrivere con i dati importati.
+                    const currentLog = loadLog();
+                    const currentSteps = loadSteps();
 
-                    const status = document.getElementById('data-status');
-                    status.textContent = '✅ Dati importati e uniti con successo!';
-                    status.style.color = '#56d364';
-                    setTimeout(() => { status.textContent = ''; }, 3000);
+                    const conflicts = [];
+                    for (const d of Object.keys(data.workout_log || {})) {
+                        if (currentLog[d] !== undefined && JSON.stringify(currentLog[d]) !== JSON.stringify(data.workout_log[d])) conflicts.push(d);
+                    }
+                    for (const d of Object.keys(data.steps_history || {})) {
+                        if (currentSteps[d] !== undefined && currentSteps[d] !== data.steps_history[d]) conflicts.push(d);
+                    }
+                    const uniqueConflicts = [...new Set(conflicts)];
+
+                    let apply = true;
+                    if (uniqueConflicts.length > 0) {
+                        apply = confirm(`Attenzione: ${uniqueConflicts.length} data/e già presenti con contenuto diverso.\nI dati importati sovrascriveranno quelli locali per quelle date.\nContinuare?\n\n(${uniqueConflicts.join(', ')})`);
+                    }
+                    if (!apply) {
+                        showImportStatus('Import annullato.', '#e3b341');
+                        return;
+                    }
+
+                    const mergedLog = { ...currentLog, ...(data.workout_log || {}) };
+                    const mergedSteps = { ...currentSteps, ...(data.steps_history || {}) };
+
+                    saveLog(mergedLog);
+                    saveStepsData(mergedSteps);
+
+                    showImportStatus('✅ Dati importati e uniti con successo!', '#56d364');
 
                     // Refresh UI
                     generateDays();
                     if (selectedDate) selectDate(selectedDate);
-                    scheduleCloudPush();
                 } catch (err) {
-                    const status = document.getElementById('data-status');
-                    status.textContent = '❌ Errore: file non valido.';
-                    status.style.color = '#ff7b72';
-                    setTimeout(() => { status.textContent = ''; }, 3000);
+                    showImportStatus('❌ Errore: file non valido.', '#ff7b72');
                 }
             };
             reader.readAsText(file);
             event.target.value = ''; // reset per consentire reimportazione dello stesso file
         }
 
+        function showImportStatus(text, color) {
+            const status = document.getElementById('data-status');
+            status.textContent = text;
+            status.style.color = color;
+            setTimeout(() => { status.textContent = ''; }, 3000);
+        }
+
         /* =========================================================
            GIORNO DI RIPOSO
            ========================================================= */
         function toggleRestDay(iso) {
-            const log = getWorkoutLog();
+            const log = loadLog();
             if (!log[iso]) log[iso] = {};
 
             if (log[iso].is_rest) {
@@ -845,8 +944,7 @@
                 log[iso] = { is_rest: true };
             }
 
-            localStorage.setItem('wlog', JSON.stringify(log));
-            scheduleCloudPush();
+            saveLog(log);
 
             const btn = document.querySelector(`.day-btn[data-date="${iso}"]`);
             if (btn) {
@@ -866,7 +964,7 @@
             const abbr = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
             const today = new Date();
             const todayISO = toISO(today);
-            const log = getWorkoutLog();
+            const log = loadLog();
 
             for (let i = 0; i < 7; i++) {
                 const d = new Date(today);
@@ -924,7 +1022,7 @@
             const list = document.getElementById('exercises-list');
             list.innerHTML = '';
 
-            const log = getWorkoutLog();
+            const log = loadLog();
             const dayLog = log[iso] || {};
 
             if (dayLog.is_rest) {
@@ -967,7 +1065,7 @@
             const container = document.getElementById('day-exercises-container');
             container.innerHTML = '';
 
-            const log = getWorkoutLog();
+            const log = loadLog();
             const dayLog = log[iso] || {};
 
             Object.values(EXERCISES).forEach(exercise => {
@@ -1008,7 +1106,7 @@
         }
 
         function toggleDone(exerciseId) {
-            const log = getWorkoutLog();
+            const log = loadLog();
             if (!log[selectedDate]) log[selectedDate] = {};
 
             const nowDone = !log[selectedDate][exerciseId];
@@ -1017,8 +1115,7 @@
 
             if (Object.keys(log[selectedDate]).length === 0) delete log[selectedDate];
 
-            localStorage.setItem('wlog', JSON.stringify(log));
-            scheduleCloudPush();
+            saveLog(log);
 
             const card = document.querySelector(`.exercise-card[data-exercise-id="${exerciseId}"]`);
             if (card) {
@@ -1059,14 +1156,13 @@
             document.getElementById('steps-display').style.display = 'block';
             document.getElementById('steps-value').textContent = value.toLocaleString('it-IT');
 
-            const history = getStepsHistory();
+            const history = loadSteps();
             history[selectedDate] = value;
-            localStorage.setItem('steps_history', JSON.stringify(history));
-            scheduleCloudPush();
+            saveStepsData(history);
         }
 
         function refreshStepsSection(iso) {
-            const history = getStepsHistory();
+            const history = loadSteps();
             const input = document.getElementById('steps-input');
             const inputRow = document.querySelector('.steps-input-row');
             const display = document.getElementById('steps-display');
@@ -1147,8 +1243,8 @@
             document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.stats-tab[data-period="${period}"]`).classList.add('active');
 
-            const history = getStepsHistory();
-            const log = getWorkoutLog();
+            const history = loadSteps();
+            const log = loadLog();
             const days = period === 'settimana' ? 7 : 30;
             const dates = [];
             const today = new Date();
@@ -1276,10 +1372,11 @@
             generateDays();
             selectDate(toISO(new Date()));
 
-            // Cloud sync: pull all'avvio, poll periodico, pull al rientro
-            cloudPull().then(() => scheduleCloudPush());
-            setInterval(cloudPull, 20000);
-            document.addEventListener('visibilitychange', () => { if (!document.hidden) cloudPull(); });
+            // Backup automatico: al massimo una volta al giorno all'avvio
+            maybeDailyBackup();
+
+            // La sincronizzazione reale (Fase 4) leggherà all'avvio e al ritorno
+            // in foreground; a questo punto non c'è polling né stub attivi.
         });
     </script>
 </body>

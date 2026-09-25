@@ -4,6 +4,7 @@ node_modules/
 .DS_Store
 *.py
 verifica.js
+test_storage.js
 _archivio/
 avanzamento_piano.md
 istruzioni_agente.md
