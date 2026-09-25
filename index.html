@@ -712,7 +712,7 @@
             "standard_stance_goblet_squat": { id: "standard_stance_goblet_squat", name: "Standard-Stance Goblet Squat", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Sedendosi e alzandosi con i piedi a larghezza standard, si stimolano le legs overall." },
             "lying_leg_curl": { id: "lying_leg_curl", name: "Lying Leg Curl", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Piegando le ginocchia e tirando il cuscinetto verso di sé, si stimolano gli hamstrings." },
             "dumbbell_stiff_leg_deadlift": { id: "dumbbell_stiff_leg_deadlift", name: "Dumbbell Stiff-Leg Deadlift", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Piegando leggermente le ginocchia, portando il bacino all'indietro, abbassando i manubri e poi ritornando su, si stimolano gli hamstrings e i glutes." },
-            "Dumbbell_Bench_Hip_Thrust": { id: "Dumbbell_Bench_Hip_Thrust", name: "Dumbbell Bench Hip Thrust", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Siediti a terra appoggiando solo la parte alta della schiena sul lato lungo della panca piana. Posiziona un manubrio sul bacino e spingi i glutei verso l'alto fino ad allineare busto e cosce." }
+            "Dumbbell_Bench_Hip_Thrust": { id: "Dumbbell_Bench_Hip_Thrust", name: "Dumbbell Bench Hip Thrust", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", image: "Dumbbell_Bench_Hip_Thrust.jpg", description: "Siediti a terra appoggiando solo la parte alta della schiena sul lato lungo della panca piana. Posiziona un manubrio sul bacino e spingi i glutei verso l'alto fino ad allineare busto e cosce." }
         };
 
         /* =========================================================
@@ -992,7 +992,7 @@
             card.className = 'exercise-card' + (done ? ' done' : '');
             card.dataset.exerciseId = id;
             card.innerHTML = `
-                <div class="exercise-card-image"><img src="immagini/${id}.png" alt="${exercise.name}"></div>
+                <div class="exercise-card-image"><img src="immagini/${exercise.image || id + '.png'}" alt="${exercise.name}"></div>
                 <div class="exercise-header">
                     <span class="exercise-name">${exercise.name}</span>
                     <span class="muscle-badge ${badgeClass}">${exercise.muscleGroup}</span>
@@ -1122,7 +1122,7 @@
                 card.className = 'db-exercise-card';
                 card.innerHTML = `
                     <div class="db-card-image">
-                        <img src="immagini/${exercise.id}.png" alt="${exercise.name}">
+                        <img src="immagini/${exercise.image || exercise.id + '.png'}" alt="${exercise.name}">
                     </div>
                     <div class="db-card-body">
                         <div class="db-card-header">
