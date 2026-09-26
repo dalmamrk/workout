@@ -886,23 +886,29 @@
                     const currentLog = loadLog();
                     const currentSteps = loadSteps();
 
-                    const conflicts = [];
+                    const logConflicts = new Set();
                     for (const d of Object.keys(data.workout_log || {})) {
-                        if (currentLog[d] !== undefined && JSON.stringify(currentLog[d]) !== JSON.stringify(data.workout_log[d])) conflicts.push(d);
+                        if (currentLog[d] !== undefined && JSON.stringify(currentLog[d]) !== JSON.stringify(data.workout_log[d])) {
+                            logConflicts.add(d);
+                        }
                     }
+
+                    const stepsConflicts = new Set();
                     for (const d of Object.keys(data.steps_history || {})) {
-                        if (currentSteps[d] !== undefined && currentSteps[d] !== data.steps_history[d]) conflicts.push(d);
+                        if (currentSteps[d] !== undefined && currentSteps[d] !== data.steps_history[d]) {
+                            stepsConflicts.add(d);
+                        }
                     }
-                    const uniqueConflicts = [...new Set(conflicts)];
+
+                    const uniqueConflicts = [...new Set([...logConflicts, ...stepsConflicts])];
 
                     let overwriteConflicts = true;
                     if (uniqueConflicts.length > 0) {
-                        overwriteConflicts = confirm(`Attenzione: ${uniqueConflicts.length} data/e già presenti con contenuto diverso.\nI dati importati sovrascriveranno quelli locali per quelle date.\nContinuare?\n\n(${uniqueConflicts.join(', ')})`);
+                        overwriteConflicts = confirm(`Attenzione: rilevati conflitti in ${uniqueConflicts.length} data/e.\n\nOK = sovrascrivi le date in conflitto · Annulla = importa solo le date nuove\n\n(${uniqueConflicts.join(', ')})`);
                     }
 
-                    // Se confermato (o nessun conflitto): sovrascrive anche le date in conflitto.
-                    // Se annullato (Decisione 4): lascia intatte le date in conflitto e unisce le date nuove.
-                    const conflictSet = new Set(uniqueConflicts);
+                    // Se confermato (o nessun conflitto): sovrascrive anche le parti in conflitto.
+                    // Se annullato: lascia intatta solo la parte in conflitto (log o steps) di quella data e unisce il resto.
                     const mergedLog = { ...currentLog };
                     const mergedSteps = { ...currentSteps };
                     let newDatesCount = 0;
@@ -913,17 +919,18 @@
                     ])];
 
                     for (const d of importedDates) {
-                        if (conflictSet.has(d) && !overwriteConflicts) {
-                            continue;
-                        }
                         if (currentLog[d] === undefined && currentSteps[d] === undefined) {
                             newDatesCount++;
                         }
                         if (data.workout_log && data.workout_log[d] !== undefined) {
-                            mergedLog[d] = data.workout_log[d];
+                            if (overwriteConflicts || !logConflicts.has(d)) {
+                                mergedLog[d] = data.workout_log[d];
+                            }
                         }
                         if (data.steps_history && data.steps_history[d] !== undefined) {
-                            mergedSteps[d] = data.steps_history[d];
+                            if (overwriteConflicts || !stepsConflicts.has(d)) {
+                                mergedSteps[d] = data.steps_history[d];
+                            }
                         }
                     }
 
