@@ -52,6 +52,7 @@ senza framework, senza build, senza dipendenze.
 - Leggi prima `HANDOFF_GEMINI.md` (se presente), `piano_implemento_workout.md` e
   `avanzamento_piano.md`.
 - A fine fase aggiorna `avanzamento_piano.md`.
+- Ogni modifica a file serviti dal sito (html, immagini, manifest, icone, sw.js) richiede di incrementare CACHE_VERSION in sw.js (workout-v1 → v2 …), altrimenti l'app installata su iPhone resta sulla versione vecchia.
 - Piccoli commit logici con messaggi chiari in italiano. **Mai `git push`**,
   mai `git reset --hard`, mai riscrivere la storia: il push lo fa l'utente.
 - **Modifiche piccole e mirate**: usa lo strumento di modifica su poche righe alla volta.
