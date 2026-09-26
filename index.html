@@ -2,10 +2,17 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d1117">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Workout">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
     <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
     <title>💪 Il mio Allenamento</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <style>
         * {
             margin: 0;
@@ -23,10 +30,54 @@
             background-color: #0d1117;
             color: #e6edf3;
             min-height: 100vh;
-            padding: 16px;
-            padding-bottom: 32px;
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+            padding-bottom: max(32px, env(safe-area-inset-bottom));
             max-width: 480px;
             margin: 0 auto;
+        }
+
+        /* Banner aggiornamento PWA */
+        #pwa-update-banner {
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 440px;
+            background: #161b22;
+            border: 1px solid #388bfd;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            z-index: 9999;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #f0f6fc;
+            min-height: 48px;
+        }
+        #pwa-update-banner .update-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        #pwa-update-banner .update-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-height: 36px;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         h1 {
@@ -2009,6 +2060,54 @@
             // La sincronizzazione reale (Fase 4) leggherà all'avvio e al ritorno
             // in foreground; a questo punto non c'è polling né stub attivi.
         });
+
+        /* =========================================================
+           SERVICE WORKER (PWA Offline & Aggiornamenti)
+           ========================================================= */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    function promptUpdate(waitingWorker) {
+                        const banner = document.getElementById('pwa-update-banner');
+                        if (!banner) return;
+                        banner.style.display = 'flex';
+                        banner.onclick = () => {
+                            if (waitingWorker) {
+                                waitingWorker.postMessage({ action: 'skipWaiting' });
+                            }
+                        };
+                    }
+
+                    if (reg.waiting) {
+                        promptUpdate(reg.waiting);
+                    }
+
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        if (!newWorker) return;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                promptUpdate(newWorker);
+                            }
+                        });
+                    });
+                }).catch(err => {
+                    console.log('SW registration error:', err);
+                });
+
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
+            });
+        }
     </script>
+    <div id="pwa-update-banner" role="alert">
+        <span class="update-text">🔄 Nuova versione disponibile</span>
+        <button type="button" class="update-btn">Tocca per aggiornare</button>
+    </div>
 </body>
 </html>
