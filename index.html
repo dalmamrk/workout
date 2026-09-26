@@ -787,6 +787,55 @@
         }
 
         /* =========================================================
+           PROGRESSIONE & STATO ESERCIZIO (Fase 2 - Modello Dati)
+           Helper unico isDone() per compatibilità con true storico
+           e con il nuovo oggetto { done, sets, note }.
+           is_rest è chiave riservata e non viene mai trattata come esercizio.
+           ========================================================= */
+        function isDone(entry) {
+            return entry === true || entry?.done === true;
+        }
+
+        function countDoneExercises(dayLog) {
+            if (!dayLog || dayLog.is_rest) return 0;
+            return Object.keys(dayLog).filter(k => {
+                if (k === 'is_rest') return false;
+                if (typeof EXERCISES !== 'undefined' && !EXERCISES[k]) return false;
+                return isDone(dayLog[k]);
+            }).length;
+        }
+
+        function getEntry(iso, id) {
+            if (!iso || !id || id === 'is_rest') return null;
+            const log = loadLog();
+            const day = log[iso];
+            if (!day || day.is_rest) return null;
+            return day[id] !== undefined ? day[id] : null;
+        }
+
+        function setEntry(iso, id, entryData) {
+            if (!iso || !id || id === 'is_rest') return;
+            const log = loadLog();
+            if (!log[iso]) log[iso] = {};
+
+            if (log[iso].is_rest) {
+                delete log[iso].is_rest;
+            }
+
+            if (entryData == null) {
+                delete log[iso][id];
+            } else {
+                log[iso][id] = entryData;
+            }
+
+            if (Object.keys(log[iso]).length === 0) {
+                delete log[iso];
+            }
+
+            saveLog(log);
+        }
+
+        /* =========================================================
            BACKUP LOCALE AUTOMATICO (wlog_backup)
            Snapshot {at, log, steps}: mantiene solo gli ultimi 3,
            con limite indicativo di ~500 KB totali (scarta dal più
@@ -1068,7 +1117,7 @@
                 return;
             }
 
-            const doneCount = Object.keys(dayLog).filter(k => EXERCISES[k]).length;
+            const doneCount = countDoneExercises(dayLog);
             document.getElementById('day-subtitle').textContent = `${doneCount} esercizi completati in questa giornata`;
 
             let uiHTML = `
@@ -1101,8 +1150,8 @@
 
             Object.values(EXERCISES).forEach(exercise => {
                 if (groupFilter !== 'Tutti' && exercise.muscleGroup !== groupFilter) return;
-                const isDone = !!dayLog[exercise.id];
-                const card = buildWorkoutCard(exercise.id, iso, isDone);
+                const done = isDone(dayLog[exercise.id]);
+                const card = buildWorkoutCard(exercise.id, iso, done);
                 container.appendChild(card);
             });
         }
@@ -1137,16 +1186,26 @@
         }
 
         function toggleDone(exerciseId) {
-            const log = loadLog();
-            if (!log[selectedDate]) log[selectedDate] = {};
+            if (!selectedDate || !exerciseId || exerciseId === 'is_rest') return;
+            const currentEntry = getEntry(selectedDate, exerciseId);
+            const currentlyDone = isDone(currentEntry);
+            const nowDone = !currentlyDone;
 
-            const nowDone = !log[selectedDate][exerciseId];
-            if (nowDone) log[selectedDate][exerciseId] = true;
-            else delete log[selectedDate][exerciseId];
-
-            if (Object.keys(log[selectedDate]).length === 0) delete log[selectedDate];
-
-            saveLog(log);
+            if (currentEntry && typeof currentEntry === 'object') {
+                const hasSets = Array.isArray(currentEntry.sets) && currentEntry.sets.length > 0;
+                const hasNote = typeof currentEntry.note === 'string' && currentEntry.note.trim().length > 0;
+                if (!nowDone && !hasSets && !hasNote) {
+                    setEntry(selectedDate, exerciseId, null);
+                } else {
+                    setEntry(selectedDate, exerciseId, { ...currentEntry, done: nowDone });
+                }
+            } else {
+                if (nowDone) {
+                    setEntry(selectedDate, exerciseId, true);
+                } else {
+                    setEntry(selectedDate, exerciseId, null);
+                }
+            }
 
             const card = document.querySelector(`.exercise-card[data-exercise-id="${exerciseId}"]`);
             if (card) {
@@ -1159,9 +1218,13 @@
                 }
             }
 
+            const log = loadLog();
             const dayLog = log[selectedDate] || {};
-            const doneCount = Object.keys(dayLog).filter(k => EXERCISES[k]).length;
-            document.getElementById('day-subtitle').textContent = `${doneCount} esercizi completati in questa giornata`;
+            const doneCount = countDoneExercises(dayLog);
+            const subtitleEl = document.getElementById('day-subtitle');
+            if (subtitleEl) {
+                subtitleEl.textContent = `${doneCount} esercizi completati in questa giornata`;
+            }
         }
 
         function toggleDescription(btn) {
@@ -1298,7 +1361,7 @@
                 if (dayLog.is_rest) {
                     restDays++;
                 } else {
-                    const doneInDay = Object.keys(dayLog).filter(k => EXERCISES[k]).length;
+                    const doneInDay = countDoneExercises(dayLog);
                     if (doneInDay > 0) {
                         trainedDays++;
                         totalExercisesDone += doneInDay;
