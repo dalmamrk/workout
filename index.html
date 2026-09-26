@@ -358,6 +358,131 @@
             color: #238636;
         }
 
+        /* Accordion Serie (Fase 2 B2) */
+        .toggle-series-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 14px;
+            margin-top: 10px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #58a6ff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .toggle-series-btn:active { background-color: #282e36; }
+
+        .series-accordion {
+            margin-top: 10px;
+            padding: 12px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+        }
+
+        .series-last-hint {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .series-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .set-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .set-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #8b949e;
+            min-width: 28px;
+        }
+
+        .set-input-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .set-input {
+            width: 100%;
+            min-height: 44px;
+            padding: 8px 10px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 16px; /* evita zoom automatico su iOS */
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .set-input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        .set-unit {
+            font-size: 0.8rem;
+            color: #8b949e;
+            min-width: 22px;
+        }
+
+        .series-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .set-action-btn {
+            flex: 1;
+            min-height: 44px;
+            padding: 8px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .set-action-btn:active { background-color: #30363d; }
+
+        .set-note-row {
+            margin-top: 10px;
+        }
+
+        .set-note-input {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 16px; /* evita zoom automatico su iOS */
+            box-sizing: border-box;
+        }
+        .set-note-input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
         /* Layout Riposo */
         .rest-day {
             text-align: center;
@@ -835,6 +960,50 @@
             saveLog(log);
         }
 
+        function getDefaultSetsCount(exercise) {
+            if (!exercise || !exercise.sets) return 3;
+            const m = String(exercise.sets).match(/\d+/);
+            return m ? parseInt(m[0], 10) : 3;
+        }
+
+        function getLastExerciseExecution(exerciseId, beforeIso) {
+            if (!exerciseId) return null;
+            const log = loadLog();
+            const dates = Object.keys(log)
+                .filter(d => (!beforeIso || d < beforeIso) && log[d] && !log[d].is_rest && log[d][exerciseId])
+                .sort()
+                .reverse();
+            for (const d of dates) {
+                const entry = log[d][exerciseId];
+                if (entry && typeof entry === 'object' && Array.isArray(entry.sets) && entry.sets.length > 0) {
+                    const hasData = entry.sets.some(s => (s && ((s.weight != null && s.weight !== '') || (s.reps != null && s.reps !== ''))));
+                    if (hasData) {
+                        return { date: d, entry };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function formatLastExecutionHint(lastExec) {
+            if (!lastExec || !lastExec.entry || !Array.isArray(lastExec.entry.sets)) return '';
+            const parts = lastExec.entry.sets
+                .filter(s => s && ((s.weight != null && s.weight !== '') || (s.reps != null && s.reps !== '')))
+                .map(s => {
+                    if (s.weight != null && s.weight !== '' && s.reps != null && s.reps !== '') {
+                        return `${s.weight} kg × ${s.reps}`;
+                    } else if (s.weight != null && s.weight !== '') {
+                        return `${s.weight} kg`;
+                    } else if (s.reps != null && s.reps !== '') {
+                        return `${s.reps} rip`;
+                    }
+                    return '';
+                })
+                .filter(Boolean);
+            if (parts.length === 0) return '';
+            return `Ultima volta (${lastExec.date}): ${parts.join(', ')}`;
+        }
+
         /* =========================================================
            BACKUP LOCALE AUTOMATICO (wlog_backup)
            Snapshot {at, log, steps}: mantiene solo gli ultimi 3,
@@ -1156,6 +1325,105 @@
             });
         }
 
+        function renderSeriesRowsHTML(exerciseId, iso, sets) {
+            return sets.map((s, idx) => `
+                <div class="set-row" data-set-index="${idx}">
+                    <span class="set-label">#${idx + 1}</span>
+                    <div class="set-input-group">
+                        <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${s.weight != null ? s.weight : ''}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                        <span class="set-unit">kg</span>
+                    </div>
+                    <div class="set-input-group">
+                        <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${s.reps != null ? s.reps : ''}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                        <span class="set-unit">rip</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleSeriesAccordion(exerciseId, btn) {
+            const acc = document.getElementById(`series-accordion-${exerciseId}`);
+            if (!acc) return;
+            const isHidden = acc.style.display === 'none' || acc.style.display === '';
+            if (isHidden) {
+                acc.style.display = 'block';
+                btn.textContent = 'Serie ▴';
+            } else {
+                acc.style.display = 'none';
+                btn.textContent = 'Serie ▾';
+            }
+        }
+
+        function addSetRow(exerciseId, iso) {
+            const list = document.getElementById(`series-list-${exerciseId}`);
+            if (!list) return;
+            const rows = list.querySelectorAll('.set-row');
+            const newIdx = rows.length;
+            const lastRow = rows[newIdx - 1];
+            const prevWeight = lastRow ? lastRow.querySelector('.set-weight')?.value || '' : '';
+            const prevReps = lastRow ? lastRow.querySelector('.set-reps')?.value || '' : '';
+
+            const row = document.createElement('div');
+            row.className = 'set-row';
+            row.dataset.setIndex = newIdx;
+            row.innerHTML = `
+                <span class="set-label">#${newIdx + 1}</span>
+                <div class="set-input-group">
+                    <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${prevWeight}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                    <span class="set-unit">kg</span>
+                </div>
+                <div class="set-input-group">
+                    <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${prevReps}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                    <span class="set-unit">rip</span>
+                </div>
+            `;
+            list.appendChild(row);
+            saveSeriesFromUI(exerciseId, iso);
+        }
+
+        function removeSetRow(exerciseId, iso) {
+            const list = document.getElementById(`series-list-${exerciseId}`);
+            if (!list) return;
+            const rows = list.querySelectorAll('.set-row');
+            if (rows.length <= 1) return;
+            list.removeChild(rows[rows.length - 1]);
+            saveSeriesFromUI(exerciseId, iso);
+        }
+
+        let _seriesDebounceTimer = null;
+        function handleSeriesInput(exerciseId, iso) {
+            clearTimeout(_seriesDebounceTimer);
+            _seriesDebounceTimer = setTimeout(() => {
+                saveSeriesFromUI(exerciseId, iso);
+            }, 500);
+        }
+
+        function saveSeriesFromUI(exerciseId, iso) {
+            const acc = document.getElementById(`series-accordion-${exerciseId}`);
+            if (!acc) return;
+
+            const currentEntry = getEntry(iso, exerciseId);
+            const done = isDone(currentEntry);
+
+            const rows = acc.querySelectorAll('.set-row');
+            const sets = [];
+            rows.forEach(r => {
+                const wVal = r.querySelector('.set-weight')?.value.trim();
+                const rVal = r.querySelector('.set-reps')?.value.trim();
+                const weight = (wVal != null && wVal !== '') ? (parseFloat(wVal.replace(',', '.')) || wVal) : null;
+                const reps = (rVal != null && rVal !== '') ? (parseInt(rVal, 10) || rVal) : null;
+                sets.push({ weight, reps });
+            });
+
+            const noteVal = acc.querySelector('.set-note-input')?.value.trim() || '';
+
+            setEntry(iso, exerciseId, {
+                done: done,
+                sets: sets,
+                note: noteVal
+            });
+        }
+
         function buildWorkoutCard(id, iso, done) {
             const exercise = EXERCISES[id];
             if (!exercise) return document.createElement('div');
@@ -1165,6 +1433,24 @@
             if (!exercise.reps.includes('sec') && !exercise.reps.includes('per gamba')) {
                 repsText += ' rip.';
             }
+
+            const currentEntry = getEntry(iso, id);
+            const lastExec = getLastExerciseExecution(id, iso);
+            const lastHint = formatLastExecutionHint(lastExec);
+
+            let initialSets = [];
+            if (currentEntry && typeof currentEntry === 'object' && Array.isArray(currentEntry.sets) && currentEntry.sets.length > 0) {
+                initialSets = currentEntry.sets;
+            } else if (lastExec && lastExec.entry && Array.isArray(lastExec.entry.sets) && lastExec.entry.sets.length > 0) {
+                initialSets = lastExec.entry.sets.map(s => ({
+                    weight: s.weight != null ? s.weight : '',
+                    reps: s.reps != null ? s.reps : ''
+                }));
+            } else {
+                const count = getDefaultSetsCount(exercise);
+                for (let i = 0; i < count; i++) initialSets.push({ weight: '', reps: '' });
+            }
+            const noteValue = (currentEntry && typeof currentEntry === 'object' && currentEntry.note) ? currentEntry.note : '';
 
             const card = document.createElement('div');
             card.className = 'exercise-card' + (done ? ' done' : '');
@@ -1181,7 +1467,21 @@
                 <button class="done-btn${done ? ' done' : ''}" onclick="toggleDone('${id}')">
                     <span class="check">✓</span>
                     <span class="done-label">${done ? 'Fatto' : 'Segna come fatto'}</span>
-                </button>`;
+                </button>
+                <button type="button" class="toggle-series-btn" onclick="toggleSeriesAccordion('${id}', this)">Serie ▾</button>
+                <div class="series-accordion" id="series-accordion-${id}" style="display: none;">
+                    ${lastHint ? `<div class="series-last-hint">${lastHint}</div>` : ''}
+                    <div class="series-list" id="series-list-${id}">
+                        ${renderSeriesRowsHTML(id, iso, initialSets)}
+                    </div>
+                    <div class="series-actions">
+                        <button type="button" class="set-action-btn" onclick="addSetRow('${id}', '${iso}')">+ serie</button>
+                        <button type="button" class="set-action-btn" onclick="removeSetRow('${id}', '${iso}')">− serie</button>
+                    </div>
+                    <div class="set-note-row">
+                        <input type="text" class="set-note-input" placeholder="Nota opzionale (es. carico, fatica...)" value="${noteValue.replace(/"/g, '&quot;')}" oninput="handleSeriesInput('${id}', '${iso}')">
+                    </div>
+                </div>`;
             return card;
         }
 
