@@ -1533,18 +1533,26 @@
             rows.forEach(r => {
                 const wVal = r.querySelector('.set-weight')?.value.trim();
                 const rVal = r.querySelector('.set-reps')?.value.trim();
-                const weight = (wVal != null && wVal !== '') ? (parseFloat(wVal.replace(',', '.')) || wVal) : null;
-                const reps = (rVal != null && rVal !== '') ? (parseInt(rVal, 10) || rVal) : null;
+                const hasW = (wVal != null && wVal !== '');
+                const hasR = (rVal != null && rVal !== '');
+                if (!hasW && !hasR) return; // Scarta righe con peso e ripetizioni entrambi vuoti
+
+                const weight = hasW ? (parseFloat(wVal.replace(',', '.')) || wVal) : null;
+                const reps = hasR ? (parseInt(rVal, 10) || rVal) : null;
                 sets.push({ weight, reps });
             });
 
             const noteVal = acc.querySelector('.set-note-input')?.value.trim() || '';
 
-            setEntry(iso, exerciseId, {
-                done: done,
-                sets: sets,
-                note: noteVal
-            });
+            if (!done && sets.length === 0 && !noteVal) {
+                setEntry(iso, exerciseId, null);
+            } else {
+                setEntry(iso, exerciseId, {
+                    done: done,
+                    sets: sets,
+                    note: noteVal
+                });
+            }
         }
 
         function renderExerciseHistoryHTML(history) {
@@ -1700,17 +1708,37 @@
             const currentlyDone = isDone(currentEntry);
             const nowDone = !currentlyDone;
 
-            if (currentEntry && typeof currentEntry === 'object') {
-                const hasSets = Array.isArray(currentEntry.sets) && currentEntry.sets.length > 0;
-                const hasNote = typeof currentEntry.note === 'string' && currentEntry.note.trim().length > 0;
-                if (!nowDone && !hasSets && !hasNote) {
-                    setEntry(selectedDate, exerciseId, null);
-                } else {
-                    setEntry(selectedDate, exerciseId, { ...currentEntry, done: nowDone });
+            if (nowDone) {
+                // Se oggi non ci sono serie salvate per quell'esercizio, salva come serie quelle precompilate dall'ultima esecuzione (se esistono)
+                let existingSets = (currentEntry && typeof currentEntry === 'object' && Array.isArray(currentEntry.sets)) ? currentEntry.sets : [];
+                let noteVal = (currentEntry && typeof currentEntry === 'object' && currentEntry.note) ? currentEntry.note : '';
+
+                if (existingSets.length === 0) {
+                    const lastExec = getLastExerciseExecution(exerciseId, selectedDate);
+                    if (lastExec && lastExec.entry && Array.isArray(lastExec.entry.sets) && lastExec.entry.sets.length > 0) {
+                        existingSets = lastExec.entry.sets.map(s => ({
+                            weight: s.weight != null ? s.weight : null,
+                            reps: s.reps != null ? s.reps : null
+                        }));
+                    }
                 }
+
+                // Decisione 6: usa sempre il formato oggetto {done, sets, note} (mai più true)
+                setEntry(selectedDate, exerciseId, {
+                    done: true,
+                    sets: existingSets,
+                    note: noteVal
+                });
             } else {
-                if (nowDone) {
-                    setEntry(selectedDate, exerciseId, true);
+                // Deselezione: se ci sono serie o note, preservale con done: false, altrimenti rimuovi entry
+                const hasSets = currentEntry && typeof currentEntry === 'object' && Array.isArray(currentEntry.sets) && currentEntry.sets.length > 0;
+                const hasNote = currentEntry && typeof currentEntry === 'object' && typeof currentEntry.note === 'string' && currentEntry.note.trim().length > 0;
+                if (hasSets || hasNote) {
+                    setEntry(selectedDate, exerciseId, {
+                        done: false,
+                        sets: currentEntry.sets || [],
+                        note: currentEntry.note || ''
+                    });
                 } else {
                     setEntry(selectedDate, exerciseId, null);
                 }
