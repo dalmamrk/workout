@@ -483,6 +483,57 @@
             border-color: #58a6ff;
         }
 
+        /* Mini storico esercizio (Fase 2 B3) */
+        .series-history {
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px dashed #30363d;
+        }
+
+        .series-history-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .series-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .series-history-item {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 0.82rem;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+        }
+
+        .series-history-date {
+            color: #58a6ff;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .series-history-data {
+            color: #c9d1d9;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .series-history-empty {
+            margin-top: 10px;
+            font-size: 0.78rem;
+            color: #8b949e;
+            font-style: italic;
+        }
+
         /* Layout Riposo */
         .rest-day {
             text-align: center;
@@ -784,12 +835,16 @@
         <div id="stats-summary" class="stats-summary-row"></div>
         <canvas id="stats-chart" width="440" height="260"></canvas>
 
-        <div style="margin-top: 24px; display: flex; gap: 10px;">
-            <button onclick="exportData()" style="flex:1; background:#238636; color:white; border:none; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; min-height:48px;">📥 Esporta Dati</button>
-            <label style="flex:1; background:#21262d; color:#c9d1d9; border:1px solid #30363d; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center;">
-                📤 Importa Dati
-                <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
-            </label>
+        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="exportData()" style="flex:1; background:#238636; color:white; border:none; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; min-height:48px;">📥 Esporta Dati</button>
+                <label style="flex:1; background:#21262d; color:#c9d1d9; border:1px solid #30363d; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center;">
+                    📤 Importa Dati
+                    <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+                </label>
+            </div>
+            <button type="button" onclick="showBackupList()" style="width:100%; background:#21262d; color:#c9d1d9; border:1px solid #30363d; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; min-height:48px;">🔄 Ripristina Backup</button>
+            <div id="backup-list-container" style="display:none; background:#161b22; border:1px solid #30363d; border-radius:10px; padding:12px;"></div>
         </div>
         <p id="data-status" style="font-size:0.8rem; color:#8b949e; margin-top:8px; text-align:center;"></p>
     </div>
@@ -1038,6 +1093,74 @@
             if (localStorage.getItem('wlog_backup_last_day') === today) return;
             try { takeBackup(); } catch (_) {}
             try { localStorage.setItem('wlog_backup_last_day', today); } catch (_) {}
+        }
+
+        function getBackupSnapshots() {
+            try {
+                const raw = localStorage.getItem(BACKUP_KEY);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function restoreBackupSnapshot(index) {
+            const snapshots = getBackupSnapshots();
+            if (index < 0 || index >= snapshots.length) return false;
+            const snap = snapshots[index];
+            if (!snap) return false;
+
+            // Salva backup dello stato corrente prima di sovrascrivere
+            takeBackup();
+
+            saveLog(snap.log || {});
+            saveStepsData(snap.steps || {});
+            return true;
+        }
+
+        function getExerciseHistory(exerciseId, beforeIso, limit = 5) {
+            if (!exerciseId) return [];
+            const log = loadLog();
+            const dates = Object.keys(log)
+                .filter(d => (!beforeIso || d < beforeIso) && log[d] && !log[d].is_rest && log[d][exerciseId] !== undefined)
+                .sort()
+                .reverse();
+
+            const history = [];
+            for (const d of dates) {
+                if (history.length >= limit) break;
+                const entry = log[d][exerciseId];
+                let summary = '';
+                if (entry && typeof entry === 'object' && Array.isArray(entry.sets) && entry.sets.length > 0) {
+                    const parts = entry.sets
+                        .filter(s => s && ((s.weight != null && s.weight !== '') || (s.reps != null && s.reps !== '')))
+                        .map(s => {
+                            if (s.weight != null && s.weight !== '' && s.reps != null && s.reps !== '') {
+                                return `${s.weight} kg × ${s.reps}`;
+                            } else if (s.weight != null && s.weight !== '') {
+                                return `${s.weight} kg`;
+                            } else if (s.reps != null && s.reps !== '') {
+                                return `${s.reps} rip`;
+                            }
+                            return '';
+                        })
+                        .filter(Boolean);
+                    if (parts.length > 0) {
+                        summary = parts.join(', ');
+                    } else if (entry.done) {
+                        summary = 'Fatto';
+                    }
+                } else if (isDone(entry)) {
+                    summary = 'Fatto';
+                }
+
+                if (summary) {
+                    history.push({ date: d, summary });
+                }
+            }
+            return history;
         }
 
         /* [Punto d'aggancio Fase 4 — sincronizzazione reale]
@@ -1424,6 +1547,90 @@
             });
         }
 
+        function renderExerciseHistoryHTML(history) {
+            if (!history || history.length === 0) {
+                return '<div class="series-history-empty">Nessun allenamento precedente registrato.</div>';
+            }
+            return `
+                <div class="series-history">
+                    <div class="series-history-title">Ultime esecuzioni</div>
+                    <div class="series-history-list">
+                        ${history.map(item => `
+                            <div class="series-history-item">
+                                <span class="series-history-date">${item.date}</span>
+                                <span class="series-history-data">${item.summary}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showBackupList() {
+            const container = document.getElementById('backup-list-container');
+            if (!container) return;
+            const isHidden = container.style.display === 'none' || container.style.display === '';
+            if (!isHidden) {
+                container.style.display = 'none';
+                return;
+            }
+
+            const snapshots = getBackupSnapshots();
+            if (snapshots.length === 0) {
+                container.innerHTML = '<div style="font-size:0.85rem; color:#8b949e; text-align:center; padding:10px;">Nessun backup automatico disponibile.</div>';
+                container.style.display = 'block';
+                return;
+            }
+
+            let html = '<div style="font-size:0.85rem; font-weight:700; color:#e6edf3; margin-bottom:8px;">Seleziona uno snapshot da ripristinare:</div>';
+            html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+
+            snapshots.slice().reverse().forEach((snap, reverseIdx) => {
+                const actualIdx = snapshots.length - 1 - reverseIdx;
+                const dt = new Date(snap.at);
+                const dtStr = isNaN(dt.getTime()) ? snap.at : dt.toLocaleString('it-IT');
+                const countEx = Object.keys(snap.log || {}).length;
+                const countSteps = Object.keys(snap.steps || {}).length;
+                html += `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; background:#0d1117; border:1px solid #30363d; border-radius:8px;">
+                        <div>
+                            <div style="font-size:0.85rem; font-weight:600; color:#e6edf3;">${dtStr}</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">${countEx} date allenamento · ${countSteps} date passi</div>
+                        </div>
+                        <button type="button" class="set-action-btn" style="flex:none; padding:8px 14px; min-height:44px; color:#58a6ff;" onclick="confirmRestoreBackup(${actualIdx})">Ripristina</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+            container.style.display = 'block';
+        }
+
+        function confirmRestoreBackup(index) {
+            const snapshots = getBackupSnapshots();
+            const snap = snapshots[index];
+            if (!snap) return;
+
+            const dt = new Date(snap.at);
+            const dtStr = isNaN(dt.getTime()) ? snap.at : dt.toLocaleString('it-IT');
+            const ok = confirm(`Attenzione: ripristinare lo snapshot del ${dtStr}?\nI dati attuali verranno salvati in un nuovo backup prima del ripristino.`);
+            if (!ok) return;
+
+            const success = restoreBackupSnapshot(index);
+            if (success) {
+                showImportStatus('✅ Backup ripristinato con successo!', '#56d364');
+                const container = document.getElementById('backup-list-container');
+                if (container) container.style.display = 'none';
+
+                generateDays();
+                switchStatsPeriod('settimana');
+                if (selectedDate) selectDate(selectedDate);
+            } else {
+                showImportStatus('❌ Errore durante il ripristino.', '#ff7b72');
+            }
+        }
+
         function buildWorkoutCard(id, iso, done) {
             const exercise = EXERCISES[id];
             if (!exercise) return document.createElement('div');
@@ -1437,6 +1644,7 @@
             const currentEntry = getEntry(iso, id);
             const lastExec = getLastExerciseExecution(id, iso);
             const lastHint = formatLastExecutionHint(lastExec);
+            const history = getExerciseHistory(id, iso, 5);
 
             let initialSets = [];
             if (currentEntry && typeof currentEntry === 'object' && Array.isArray(currentEntry.sets) && currentEntry.sets.length > 0) {
@@ -1481,6 +1689,7 @@
                     <div class="set-note-row">
                         <input type="text" class="set-note-input" placeholder="Nota opzionale (es. carico, fatica...)" value="${noteValue.replace(/"/g, '&quot;')}" oninput="handleSeriesInput('${id}', '${iso}')">
                     </div>
+                    ${renderExerciseHistoryHTML(history)}
                 </div>`;
             return card;
         }
