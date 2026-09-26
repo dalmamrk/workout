@@ -895,22 +895,46 @@
                     }
                     const uniqueConflicts = [...new Set(conflicts)];
 
-                    let apply = true;
+                    let overwriteConflicts = true;
                     if (uniqueConflicts.length > 0) {
-                        apply = confirm(`Attenzione: ${uniqueConflicts.length} data/e già presenti con contenuto diverso.\nI dati importati sovrascriveranno quelli locali per quelle date.\nContinuare?\n\n(${uniqueConflicts.join(', ')})`);
-                    }
-                    if (!apply) {
-                        showImportStatus('Import annullato.', '#e3b341');
-                        return;
+                        overwriteConflicts = confirm(`Attenzione: ${uniqueConflicts.length} data/e già presenti con contenuto diverso.\nI dati importati sovrascriveranno quelli locali per quelle date.\nContinuare?\n\n(${uniqueConflicts.join(', ')})`);
                     }
 
-                    const mergedLog = { ...currentLog, ...(data.workout_log || {}) };
-                    const mergedSteps = { ...currentSteps, ...(data.steps_history || {}) };
+                    // Se confermato (o nessun conflitto): sovrascrive anche le date in conflitto.
+                    // Se annullato (Decisione 4): lascia intatte le date in conflitto e unisce le date nuove.
+                    const conflictSet = new Set(uniqueConflicts);
+                    const mergedLog = { ...currentLog };
+                    const mergedSteps = { ...currentSteps };
+                    let newDatesCount = 0;
+
+                    const importedDates = [...new Set([
+                        ...Object.keys(data.workout_log || {}),
+                        ...Object.keys(data.steps_history || {})
+                    ])];
+
+                    for (const d of importedDates) {
+                        if (conflictSet.has(d) && !overwriteConflicts) {
+                            continue;
+                        }
+                        if (currentLog[d] === undefined && currentSteps[d] === undefined) {
+                            newDatesCount++;
+                        }
+                        if (data.workout_log && data.workout_log[d] !== undefined) {
+                            mergedLog[d] = data.workout_log[d];
+                        }
+                        if (data.steps_history && data.steps_history[d] !== undefined) {
+                            mergedSteps[d] = data.steps_history[d];
+                        }
+                    }
 
                     saveLog(mergedLog);
                     saveStepsData(mergedSteps);
 
-                    showImportStatus('✅ Dati importati e uniti con successo!', '#56d364');
+                    if (uniqueConflicts.length > 0 && !overwriteConflicts) {
+                        showImportStatus(`Import parziale: ${newDatesCount} date nuove unite, ${uniqueConflicts.length} date in conflitto lasciate invariate.`, '#e3b341');
+                    } else {
+                        showImportStatus('✅ Dati importati e uniti con successo!', '#56d364');
+                    }
 
                     // Refresh UI
                     generateDays();
