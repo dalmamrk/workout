@@ -245,9 +245,14 @@
         #steps-edit-btn {
             background-color: transparent;
             border: none;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             margin-left: 8px;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Intestazione Giorno */
@@ -851,6 +856,7 @@
                 <span id="steps-value">0</span> passi
                 <button id="steps-edit-btn" onclick="editSteps()">✏️</button>
             </div>
+            <p id="steps-future-msg" style="display:none; color:#8b949e; margin:10px 0 0 0; font-size:0.9rem;">I giorni futuri non accettano passi.</p>
         </div>
 
         <div id="workout-container" style="display:none;">
@@ -1389,7 +1395,8 @@
             const todayISO = toISO(today);
             const log = loadLog();
 
-            for (let i = 0; i < 7; i++) {
+            // Mostra almeno gli ultimi 7 giorni passati (-7..-1), oggi (0) e domani (1)
+            for (let i = -7; i <= 1; i++) {
                 const d = new Date(today);
                 d.setDate(today.getDate() + i);
                 const iso = toISO(d);
@@ -1884,18 +1891,68 @@
         /* =========================================================
            PASSI
            ========================================================= */
-        function saveSteps() {
-            const input = document.getElementById('steps-input');
-            const value = parseInt(input.value);
-            if (isNaN(value) || value <= 0) return;
+        function formatStepsDateLabel(iso, todayISO) {
+            if (!todayISO) todayISO = toISO(new Date());
+            const d = new Date(iso + 'T12:00:00');
+            const abbr = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+            const dayName = abbr[d.getDay()];
+            const dayNum = String(d.getDate()).padStart(2, '0');
+            const monthNum = String(d.getMonth() + 1).padStart(2, '0');
+            const dateFormatted = `${dayName} ${dayNum}/${monthNum}`;
+            if (iso === todayISO) {
+                return `Passi di oggi (${dateFormatted})`;
+            }
+            return `Passi di ${dateFormatted}`;
+        }
 
-            document.querySelector('.steps-input-row').style.display = 'none';
-            document.getElementById('steps-display').style.display = 'block';
-            document.getElementById('steps-value').textContent = value.toLocaleString('it-IT');
+        function computeStepsStats(history, period, refDate) {
+            if (!period) period = 'settimana';
+            if (!refDate) refDate = new Date();
+            const days = period === 'settimana' ? 7 : 30;
+            const dates = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date(refDate);
+                d.setDate(d.getDate() - i);
+                dates.push(toISO(d));
+            }
+            const values = dates.map(d => (history && history[d]) || 0);
+            const filledValues = values.filter(v => v > 0);
+            const total = filledValues.reduce((a, b) => a + b, 0);
+            const avg = filledValues.length > 0 ? Math.round(total / filledValues.length) : 0;
+            return { dates, values, total, avg, daysCount: days };
+        }
+
+        function saveStepsForDate(iso, value, todayISO) {
+            if (!todayISO) todayISO = toISO(new Date());
+            if (iso > todayISO) return false;
+            const val = parseInt(value, 10);
+            if (isNaN(val) || val <= 0) return false;
 
             const history = loadSteps();
-            history[selectedDate] = value;
+            history[iso] = val;
             saveStepsData(history);
+            return true;
+        }
+
+        function saveSteps() {
+            const todayISO = toISO(new Date());
+            if (!selectedDate || selectedDate > todayISO) {
+                alert('I giorni futuri non accettano passi.');
+                return false;
+            }
+            const input = document.getElementById('steps-input');
+            if (!input) return false;
+            const value = parseInt(input.value, 10);
+            if (isNaN(value) || value <= 0) return false;
+
+            const ok = saveStepsForDate(selectedDate, value, todayISO);
+            if (ok) {
+                refreshStepsSection(selectedDate);
+                const activeTab = document.querySelector('.stats-tab.active');
+                const period = activeTab ? activeTab.dataset.period : 'settimana';
+                switchStatsPeriod(period);
+            }
+            return ok;
         }
 
         function refreshStepsSection(iso) {
@@ -1903,21 +1960,50 @@
             const input = document.getElementById('steps-input');
             const inputRow = document.querySelector('.steps-input-row');
             const display = document.getElementById('steps-display');
+            const title = document.querySelector('#steps-section h3');
+            const futureMsg = document.getElementById('steps-future-msg');
+            const todayISO = toISO(new Date());
+
+            const isFuture = iso > todayISO;
+
+            if (title) {
+                title.textContent = '🦶 ' + formatStepsDateLabel(iso, todayISO);
+            }
+
+            if (isFuture) {
+                if (inputRow) inputRow.style.display = 'none';
+                if (display) display.style.display = 'none';
+                if (futureMsg) futureMsg.style.display = 'block';
+                return;
+            }
+
+            if (futureMsg) futureMsg.style.display = 'none';
+
             if (history[iso] != null && history[iso] > 0) {
-                input.value = history[iso];
-                inputRow.style.display = 'none';
-                display.style.display = 'block';
-                document.getElementById('steps-value').textContent = history[iso].toLocaleString('it-IT');
+                if (input) input.value = history[iso];
+                if (inputRow) inputRow.style.display = 'none';
+                if (display) display.style.display = 'block';
+                const valEl = document.getElementById('steps-value');
+                if (valEl) valEl.textContent = Number(history[iso]).toLocaleString('it-IT');
             } else {
-                input.value = '';
-                inputRow.style.display = 'flex';
-                display.style.display = 'none';
+                if (input) input.value = '';
+                if (inputRow) inputRow.style.display = 'flex';
+                if (display) display.style.display = 'none';
             }
         }
 
         function editSteps() {
-            document.getElementById('steps-display').style.display = 'none';
-            document.querySelector('.steps-input-row').style.display = 'flex';
+            const todayISO = toISO(new Date());
+            if (!selectedDate || selectedDate > todayISO) return;
+            const display = document.getElementById('steps-display');
+            const inputRow = document.querySelector('.steps-input-row');
+            const input = document.getElementById('steps-input');
+            if (display) display.style.display = 'none';
+            if (inputRow) inputRow.style.display = 'flex';
+            if (input) {
+                input.focus();
+                input.select();
+            }
         }
 
         document.getElementById('steps-input').addEventListener('keydown', function(e) {
@@ -1982,20 +2068,12 @@
 
             const history = loadSteps();
             const log = loadLog();
-            const days = period === 'settimana' ? 7 : 30;
-            const dates = [];
             const today = new Date();
-
-            for (let i = days - 1; i >= 0; i--) {
-                const d = new Date(today);
-                d.setDate(d.getDate() - i);
-                dates.push(toISO(d));
-            }
-
-            const values = dates.map(d => history[d] || 0);
-            const filledValues = values.filter(v => v > 0);
-            const total = filledValues.reduce((a, b) => a + b, 0);
-            const avg = filledValues.length > 0 ? Math.round(total / filledValues.length) : 0;
+            const stepsStats = computeStepsStats(history, period, today);
+            const dates = stepsStats.dates;
+            const values = stepsStats.values;
+            const total = stepsStats.total;
+            const avg = stepsStats.avg;
 
             // Aderenza libera: conteggio basato sui dati reali
             let trainedDays = 0, restDays = 0, totalExercisesDone = 0;
