@@ -830,6 +830,84 @@
             font-size: 2.5rem;
             margin-bottom: 12px;
         }
+
+        /* Allenamenti del periodo (Statistiche) */
+        .period-workouts-container {
+            margin-top: 24px;
+        }
+        .period-workouts-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e6edf3;
+            margin: 0 0 10px 0;
+        }
+        .period-groups-summary {
+            font-size: 0.85rem;
+            color: #58a6ff;
+            font-weight: 600;
+            background-color: #161b22;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .period-workouts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .period-workout-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            min-height: 44px;
+            box-sizing: border-box;
+            transition: all 0.15s ease;
+        }
+        .period-workout-row.clickable {
+            cursor: pointer;
+        }
+        .period-workout-row.clickable:active {
+            background-color: #21262d;
+            border-color: #58a6ff;
+            transform: scale(0.99);
+        }
+        .period-workout-row.non-clickable {
+            opacity: 0.85;
+            cursor: default;
+        }
+        .period-workout-date {
+            font-weight: 700;
+            color: #e6edf3;
+            font-size: 0.85rem;
+            min-width: 80px;
+        }
+        .period-workout-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            flex: 1;
+        }
+        .period-workout-count {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #8b949e;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        .period-workout-arrow {
+            color: #58a6ff;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -891,6 +969,7 @@
         <div id="stats-adherence"></div>
         <div id="stats-summary" class="stats-summary-row"></div>
         <canvas id="stats-chart" width="440" height="260"></canvas>
+        <div id="stats-period-workouts" class="period-workouts-container"></div>
 
         <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; gap: 10px;">
@@ -2060,6 +2139,157 @@
         }
 
         /* =========================================================
+           ALLENAMENTI DEL PERIODO (Statistiche)
+           ========================================================= */
+        function formatBriefDate(iso) {
+            const d = new Date(iso + 'T12:00:00');
+            const abbr = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+            const dayName = abbr[d.getDay()];
+            const dayNum = String(d.getDate()).padStart(2, '0');
+            const monthNum = String(d.getMonth() + 1).padStart(2, '0');
+            return `${dayName} ${dayNum}/${monthNum}`;
+        }
+
+        function isDateSelectable(iso) {
+            return !!document.querySelector(`.day-btn[data-date="${iso}"]`);
+        }
+
+        function openDayInProgram(iso) {
+            if (!isDateSelectable(iso)) return;
+            switchTab('programma');
+            selectDate(iso);
+        }
+
+        function computePeriodWorkouts(dates, log, exercises) {
+            if (!exercises) exercises = (typeof EXERCISES !== 'undefined' ? EXERCISES : {});
+            if (!log) log = {};
+            const muscleGroupsOrder = (typeof GROUPS !== 'undefined' ? GROUPS : ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei"]).filter(g => g !== 'Tutti');
+
+            const groupDayCounts = {};
+            muscleGroupsOrder.forEach(g => { groupDayCounts[g] = 0; });
+
+            (dates || []).forEach(d => {
+                const dayLog = log[d];
+                if (!dayLog || dayLog.is_rest) return;
+                const dayGroups = new Set();
+                Object.keys(dayLog).forEach(id => {
+                    if (id !== 'is_rest' && exercises[id] && isDone(dayLog[id])) {
+                        dayGroups.add(exercises[id].muscleGroup);
+                    }
+                });
+                dayGroups.forEach(g => {
+                    if (groupDayCounts[g] !== undefined) {
+                        groupDayCounts[g]++;
+                    }
+                });
+            });
+
+            const summaryParts = [];
+            muscleGroupsOrder.forEach(g => {
+                if (groupDayCounts[g] > 0) {
+                    summaryParts.push(`${g} ${groupDayCounts[g]}`);
+                }
+            });
+            const groupDaysSummary = summaryParts.join(' · ');
+
+            const sortedDates = [...(dates || [])].sort().reverse();
+            const daysList = [];
+
+            sortedDates.forEach(d => {
+                const dayLog = log[d];
+                if (!dayLog) return;
+
+                if (dayLog.is_rest) {
+                    daysList.push({
+                        date: d,
+                        isRest: true,
+                        groups: [],
+                        exercisesCount: 0
+                    });
+                    return;
+                }
+
+                let doneCount = 0;
+                const dayGroupsSet = new Set();
+                Object.keys(dayLog).forEach(id => {
+                    if (id !== 'is_rest' && exercises[id] && isDone(dayLog[id])) {
+                        doneCount++;
+                        dayGroupsSet.add(exercises[id].muscleGroup);
+                    }
+                });
+
+                if (doneCount > 0) {
+                    const orderedGroups = muscleGroupsOrder.filter(g => dayGroupsSet.has(g));
+                    daysList.push({
+                        date: d,
+                        isRest: false,
+                        groups: orderedGroups,
+                        exercisesCount: doneCount
+                    });
+                }
+            });
+
+            return {
+                days: daysList,
+                summary: groupDaysSummary
+            };
+        }
+
+        function renderPeriodWorkouts(dates, log) {
+            const container = document.getElementById('stats-period-workouts');
+            if (!container) return;
+
+            const data = computePeriodWorkouts(dates, log, EXERCISES);
+
+            let html = `<div class="period-workouts-title">Allenamenti del periodo</div>`;
+
+            if (data.summary) {
+                html += `<div class="period-groups-summary">${data.summary}</div>`;
+            }
+
+            if (data.days.length === 0) {
+                html += `
+                    <div class="stats-empty" style="padding:16px 0;">
+                        <p style="color:#8b949e; font-size:0.85rem; margin:0;">Nessun allenamento o riposo registrato in questo periodo.</p>
+                    </div>`;
+            } else {
+                html += `<div class="period-workouts-list">`;
+                data.days.forEach(item => {
+                    const dateLabel = formatBriefDate(item.date);
+                    const selectable = isDateSelectable(item.date);
+                    const rowClass = 'period-workout-row ' + (selectable ? 'clickable' : 'non-clickable');
+                    const clickAttr = selectable ? `onclick="openDayInProgram('${item.date}')"` : '';
+
+                    let centerHTML = '';
+                    let countHTML = '';
+                    if (item.isRest) {
+                        centerHTML = `<span style="color:#8b949e; font-size:0.85rem; font-style:italic;">😴 Riposo</span>`;
+                        countHTML = `<span class="period-workout-count">—</span>`;
+                    } else {
+                        centerHTML = `
+                            <div class="period-workout-badges">
+                                ${item.groups.map(g => `<span class="muscle-badge badge-${g.toLowerCase()}">${g}</span>`).join('')}
+                            </div>`;
+                        countHTML = `<span class="period-workout-count">${item.exercisesCount} ${item.exercisesCount === 1 ? 'es.' : 'es.'}</span>`;
+                    }
+
+                    const arrowHTML = selectable ? `<span class="period-workout-arrow">›</span>` : '';
+
+                    html += `
+                        <div class="${rowClass}" ${clickAttr} data-date="${item.date}">
+                            <span class="period-workout-date">${dateLabel}</span>
+                            ${centerHTML}
+                            ${countHTML}
+                            ${arrowHTML}
+                        </div>`;
+                });
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        /* =========================================================
            STATISTICHE (aderenza + passi)
            ========================================================= */
         function switchStatsPeriod(period) {
@@ -2126,6 +2356,7 @@
             `;
 
             drawBarChart(dates, values, period);
+            renderPeriodWorkouts(dates, log);
         }
 
         function drawBarChart(dates, values, period) {
