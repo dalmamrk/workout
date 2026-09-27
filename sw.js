@@ -1,5 +1,5 @@
 // sw.js — Service Worker per Workout PWA (funzionamento offline e cache per iPhone/desktop)
-const CACHE_VERSION = 'workout-v2';
+const CACHE_VERSION = 'workout-v3';
 const CACHE_NAME = CACHE_VERSION;
 
 const PRECACHE_URLS = [
