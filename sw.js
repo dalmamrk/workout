@@ -20,6 +20,7 @@ const PRECACHE_URLS = [
     'immagini/dumbbell_fly.png',
     'immagini/dumbbell_pullover.png',
     'immagini/dumbbell_stiff_leg_deadlift.png',
+    'immagini/farmer_walk.png',
     'immagini/hammer_curl.png',
     'immagini/incline_bicep_curl.png',
     'immagini/incline_dumbbell_press.png',

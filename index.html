@@ -332,6 +332,7 @@
         .badge-gambe { background-color: #1f3a3a; color: #56d3c4; }
         .badge-glutei { background-color: #3b1f2e; color: #ff9ec4; }
         .badge-gambe\ e\ glutei { background-color: #1f3a3a; color: #56d3c4; }
+        .badge-riposo\ attivo, .badge-riposo-attivo { background-color: #26223b; color: #b392f0; }
 
         .exercise-sets {
             margin-top: 8px;
@@ -1020,7 +1021,9 @@
             "standard_stance_goblet_squat": { id: "standard_stance_goblet_squat", name: "Standard-Stance Goblet Squat", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Sedendosi e alzandosi con i piedi a larghezza standard, si stimolano le legs overall." },
             "lying_leg_curl": { id: "lying_leg_curl", name: "Lying Leg Curl", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Piegando le ginocchia e tirando il cuscinetto verso di sé, si stimolano gli hamstrings." },
             "dumbbell_stiff_leg_deadlift": { id: "dumbbell_stiff_leg_deadlift", name: "Dumbbell Stiff-Leg Deadlift", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", description: "Piegando leggermente le ginocchia, portando il bacino all'indietro, abbassando i manubri e poi ritornando su, si stimolano gli hamstrings e i glutes." },
-            "Dumbbell_Bench_Hip_Thrust": { id: "Dumbbell_Bench_Hip_Thrust", name: "Dumbbell Bench Hip Thrust", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", image: "Dumbbell_Bench_Hip_Thrust.jpg", description: "Siediti a terra appoggiando solo la parte alta della schiena sul lato lungo della panca piana. Posiziona un manubrio sul bacino e spingi i glutei verso l'alto fino ad allineare busto e cosce." }
+            "Dumbbell_Bench_Hip_Thrust": { id: "Dumbbell_Bench_Hip_Thrust", name: "Dumbbell Bench Hip Thrust", muscleGroup: "Gambe e Glutei", sets: "3-4", reps: "12-15", image: "Dumbbell_Bench_Hip_Thrust.jpg", description: "Siediti a terra appoggiando solo la parte alta della schiena sul lato lungo della panca piana. Posiziona un manubrio sul bacino e spingi i glutei verso l'alto fino ad allineare busto e cosce." },
+            // Riposo attivo
+            "farmer_walk": { id: "farmer_walk", name: "Farmer's Walk", muscleGroup: "Riposo attivo", sets: "2-4", reps: "a tempo", restDayOnly: true, fields: [{ key: "minutes", label: "min" }, { key: "weight", label: "kg" }, { key: "steps", label: "passi" }], description: "Esercizio di riposo attivo, da fare nei giorni senza pesi. In piedi, un manubrio pesante per mano con presa neutra e braccia distese lungo i fianchi. Cammina a passi corti e controllati per il tempo scelto, busto eretto, spalle basse e indietro, addome contratto, senza far oscillare i manubri. Allena la presa e gli avambracci, i trapezi e la stabilità del core." }
         };
 
         /* =========================================================
@@ -1029,7 +1032,7 @@
         const WEEKDAY_NAMES = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
         const MONTH_NAMES = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
         const ISO_TO_WEEKDAY = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-        const GROUPS = ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei"];
+        const GROUPS = ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei", "Riposo attivo"];
 
         let selectedDate = '';
 
