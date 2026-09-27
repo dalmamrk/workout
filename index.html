@@ -1499,20 +1499,51 @@
             });
         }
 
+        function applySeriesCascadeLogic(rows, changedIdx, field, val) {
+            if (changedIdx !== 0) {
+                if (rows[changedIdx]) {
+                    rows[changedIdx].touched = true;
+                    rows[changedIdx][field] = val;
+                }
+                return rows;
+            }
+            rows.forEach((r, idx) => {
+                if (idx === 0) {
+                    r[field] = val;
+                } else if (!r.touched) {
+                    r[field] = val;
+                }
+            });
+            return rows;
+        }
+
+        function addSeriesRowData(rows) {
+            const last = rows[rows.length - 1] || { weight: '', reps: '' };
+            return [...rows, { weight: last.weight, reps: last.reps, touched: false }];
+        }
+
         function renderSeriesRowsHTML(exerciseId, iso, sets) {
             return sets.map((s, idx) => `
-                <div class="set-row" data-set-index="${idx}">
+                <div class="set-row" data-set-index="${idx}" data-user-modified="false">
                     <span class="set-label">#${idx + 1}</span>
                     <div class="set-input-group">
-                        <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${s.weight != null ? s.weight : ''}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                        <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${s.weight != null ? s.weight : ''}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'weight')">
                         <span class="set-unit">kg</span>
                     </div>
                     <div class="set-input-group">
-                        <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${s.reps != null ? s.reps : ''}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                        <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${s.reps != null ? s.reps : ''}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'reps')">
                         <span class="set-unit">rip</span>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function markRowTouched(inputEl) {
+            if (!inputEl) return;
+            const row = inputEl.closest ? inputEl.closest('.set-row') : null;
+            if (row && parseInt(row.dataset.setIndex, 10) > 0) {
+                row.dataset.userModified = 'true';
+            }
         }
 
         function toggleSeriesAccordion(exerciseId, btn) {
@@ -1534,20 +1565,21 @@
             const rows = list.querySelectorAll('.set-row');
             const newIdx = rows.length;
             const lastRow = rows[newIdx - 1];
-            const prevWeight = lastRow ? lastRow.querySelector('.set-weight')?.value || '' : '';
-            const prevReps = lastRow ? lastRow.querySelector('.set-reps')?.value || '' : '';
+            const prevWeight = lastRow ? (lastRow.querySelector('.set-weight')?.value || '') : '';
+            const prevReps = lastRow ? (lastRow.querySelector('.set-reps')?.value || '') : '';
 
             const row = document.createElement('div');
             row.className = 'set-row';
             row.dataset.setIndex = newIdx;
+            row.dataset.userModified = 'false';
             row.innerHTML = `
                 <span class="set-label">#${newIdx + 1}</span>
                 <div class="set-input-group">
-                    <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${prevWeight}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                    <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${prevWeight}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'weight')">
                     <span class="set-unit">kg</span>
                 </div>
                 <div class="set-input-group">
-                    <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${prevReps}" oninput="handleSeriesInput('${exerciseId}', '${iso}')">
+                    <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${prevReps}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'reps')">
                     <span class="set-unit">rip</span>
                 </div>
             `;
@@ -1565,7 +1597,30 @@
         }
 
         let _seriesDebounceTimer = null;
-        function handleSeriesInput(exerciseId, iso) {
+        function handleSeriesInput(exerciseId, iso, inputEl, field) {
+            if (inputEl && field) {
+                const row = inputEl.closest ? inputEl.closest('.set-row') : null;
+                const idx = row ? parseInt(row.dataset.setIndex, 10) : -1;
+                if (idx > 0) {
+                    row.dataset.userModified = 'true';
+                } else if (idx === 0) {
+                    const list = document.getElementById(`series-list-${exerciseId}`);
+                    if (list) {
+                        const rows = list.querySelectorAll('.set-row');
+                        const newVal = inputEl.value;
+                        for (let i = 1; i < rows.length; i++) {
+                            const r = rows[i];
+                            if (r.dataset.userModified !== 'true') {
+                                const targetInput = r.querySelector(field === 'weight' ? '.set-weight' : '.set-reps');
+                                if (targetInput) {
+                                    targetInput.value = newVal;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             clearTimeout(_seriesDebounceTimer);
             _seriesDebounceTimer = setTimeout(() => {
                 saveSeriesFromUI(exerciseId, iso);
