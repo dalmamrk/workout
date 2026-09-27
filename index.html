@@ -466,12 +466,14 @@
             align-items: center;
             gap: 4px;
             flex: 1;
+            min-width: 0;
         }
 
         .set-input {
             width: 100%;
+            min-width: 0;
             min-height: 44px;
-            padding: 8px 10px;
+            padding: 8px 6px;
             background-color: #161b22;
             border: 1px solid #30363d;
             border-radius: 6px;
@@ -487,9 +489,9 @@
         }
 
         .set-unit {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #8b949e;
-            min-width: 22px;
+            white-space: nowrap;
         }
 
         .series-actions {
@@ -1111,7 +1113,10 @@
             if (!dayLog || dayLog.is_rest) return 0;
             return Object.keys(dayLog).filter(k => {
                 if (k === 'is_rest') return false;
-                if (typeof EXERCISES !== 'undefined' && !EXERCISES[k]) return false;
+                if (typeof EXERCISES !== 'undefined') {
+                    if (!EXERCISES[k]) return false;
+                    if (EXERCISES[k].restDayOnly) return false;
+                }
                 return isDone(dayLog[k]);
             }).length;
         }
@@ -1120,7 +1125,11 @@
             if (!iso || !id || id === 'is_rest') return null;
             const log = loadLog();
             const day = log[iso];
-            if (!day || day.is_rest) return null;
+            if (!day) return null;
+            if (day.is_rest) {
+                const isRestOnly = (typeof EXERCISES !== 'undefined' && EXERCISES[id]?.restDayOnly);
+                if (!isRestOnly) return null;
+            }
             return day[id] !== undefined ? day[id] : null;
         }
 
@@ -1129,8 +1138,16 @@
             const log = loadLog();
             if (!log[iso]) log[iso] = {};
 
+            const isRestOnly = (typeof EXERCISES !== 'undefined' && EXERCISES[id]?.restDayOnly);
+
             if (log[iso].is_rest) {
-                delete log[iso].is_rest;
+                if (!isRestOnly) {
+                    if (typeof confirm === 'function') {
+                        const ok = confirm("Rimuovere il giorno di riposo e registrare l'esercizio?");
+                        if (!ok) return false;
+                    }
+                    delete log[iso].is_rest;
+                }
             }
 
             if (entryData == null) {
@@ -1144,6 +1161,7 @@
             }
 
             saveLog(log);
+            return true;
         }
 
         function getDefaultSetsCount(exercise) {
@@ -1155,36 +1173,56 @@
         function getLastExerciseExecution(exerciseId, beforeIso) {
             if (!exerciseId) return null;
             const log = loadLog();
+            const isRestOnly = (typeof EXERCISES !== 'undefined' && EXERCISES[exerciseId]?.restDayOnly);
             const dates = Object.keys(log)
-                .filter(d => (!beforeIso || d < beforeIso) && log[d] && !log[d].is_rest && log[d][exerciseId])
+                .filter(d => (!beforeIso || d < beforeIso) && log[d] && (!log[d].is_rest || isRestOnly) && log[d][exerciseId])
                 .sort()
                 .reverse();
             for (const d of dates) {
                 const entry = log[d][exerciseId];
                 if (entry && typeof entry === 'object' && Array.isArray(entry.sets) && entry.sets.length > 0) {
-                    const hasData = entry.sets.some(s => (s && ((s.weight != null && s.weight !== '') || (s.reps != null && s.reps !== ''))));
+                    const hasData = entry.sets.some(s => (s && Object.values(s).some(v => v != null && v !== '')));
                     if (hasData) {
-                        return { date: d, entry };
+                        return { date: d, entry, exerciseId };
                     }
                 }
             }
             return null;
         }
 
-        function formatLastExecutionHint(lastExec) {
-            if (!lastExec || !lastExec.entry || !Array.isArray(lastExec.entry.sets)) return '';
-            const parts = lastExec.entry.sets
-                .filter(s => s && ((s.weight != null && s.weight !== '') || (s.reps != null && s.reps !== '')))
-                .map(s => {
-                    if (s.weight != null && s.weight !== '' && s.reps != null && s.reps !== '') {
-                        return `${s.weight} kg × ${s.reps}`;
-                    } else if (s.weight != null && s.weight !== '') {
-                        return `${s.weight} kg`;
-                    } else if (s.reps != null && s.reps !== '') {
-                        return `${s.reps} rip`;
+        function formatSetSummary(s, exercise) {
+            if (!s) return '';
+            if (exercise && exercise.fields && Array.isArray(exercise.fields)) {
+                const parts = [];
+                exercise.fields.forEach(f => {
+                    const val = s[f.key];
+                    if (val != null && val !== '') {
+                        if (f.key === 'steps') {
+                            const num = parseInt(String(val).replace(/\D/g, ''), 10);
+                            const formatted = !isNaN(num) ? String(num).replace(/\B(?=(\d{3})+(?!\d))/g, '.') : val;
+                            parts.push(`${formatted} ${f.label}`);
+                        } else {
+                            parts.push(`${val} ${f.label}`);
+                        }
                     }
-                    return '';
-                })
+                });
+                return parts.join(' · ');
+            }
+            if (s.weight != null && s.weight !== '' && s.reps != null && s.reps !== '') {
+                return `${s.weight} kg × ${s.reps}`;
+            } else if (s.weight != null && s.weight !== '') {
+                return `${s.weight} kg`;
+            } else if (s.reps != null && s.reps !== '') {
+                return `${s.reps} rip`;
+            }
+            return '';
+        }
+
+        function formatLastExecutionHint(lastExec, exercise) {
+            if (!lastExec || !lastExec.entry || !Array.isArray(lastExec.entry.sets)) return '';
+            const ex = exercise || (typeof EXERCISES !== 'undefined' ? (EXERCISES[lastExec.exerciseId] || (lastExec.entry.exerciseId ? EXERCISES[lastExec.entry.exerciseId] : null)) : null);
+            const parts = lastExec.entry.sets
+                .map(s => formatSetSummary(s, ex))
                 .filter(Boolean);
             if (parts.length === 0) return '';
             return `Ultima volta (${lastExec.date}): ${parts.join(', ')}`;
@@ -1254,8 +1292,10 @@
         function getExerciseHistory(exerciseId, beforeIso, limit = 5) {
             if (!exerciseId) return [];
             const log = loadLog();
+            const ex = (typeof EXERCISES !== 'undefined' ? EXERCISES[exerciseId] : null);
+            const isRestOnly = ex?.restDayOnly;
             const dates = Object.keys(log)
-                .filter(d => (!beforeIso || d < beforeIso) && log[d] && !log[d].is_rest && log[d][exerciseId] !== undefined)
+                .filter(d => (!beforeIso || d < beforeIso) && log[d] && (!log[d].is_rest || isRestOnly) && log[d][exerciseId] !== undefined)
                 .sort()
                 .reverse();
 
@@ -1266,17 +1306,7 @@
                 let summary = '';
                 if (entry && typeof entry === 'object' && Array.isArray(entry.sets) && entry.sets.length > 0) {
                     const parts = entry.sets
-                        .filter(s => s && ((s.weight != null && s.weight !== '') || (s.reps != null && s.reps !== '')))
-                        .map(s => {
-                            if (s.weight != null && s.weight !== '' && s.reps != null && s.reps !== '') {
-                                return `${s.weight} kg × ${s.reps}`;
-                            } else if (s.weight != null && s.weight !== '') {
-                                return `${s.weight} kg`;
-                            } else if (s.reps != null && s.reps !== '') {
-                                return `${s.reps} rip`;
-                            }
-                            return '';
-                        })
+                        .map(s => formatSetSummary(s, ex))
                         .filter(Boolean);
                     if (parts.length > 0) {
                         summary = parts.join(', ');
@@ -1441,10 +1471,46 @@
             if (!log[iso]) log[iso] = {};
 
             if (log[iso].is_rest) {
+                // Togliere il riposo
+                const restEntries = Object.keys(log[iso]).filter(k => {
+                    if (k === 'is_rest') return false;
+                    const ex = (typeof EXERCISES !== 'undefined' ? EXERCISES[k] : null);
+                    if (!ex || !ex.restDayOnly) return false;
+                    const entry = log[iso][k];
+                    return isDone(entry) || (entry && typeof entry === 'object' && Array.isArray(entry.sets) && entry.sets.length > 0);
+                });
+
+                if (restEntries.length > 0) {
+                    const n = restEntries.length;
+                    const msg = n === 1
+                        ? `Rimuovere 1 esercizio di riposo attivo e togliere riposo?`
+                        : `Rimuovere ${n} esercizi di riposo attivo e togliere riposo?`;
+                    if (!confirm(msg)) return;
+                    restEntries.forEach(k => {
+                        delete log[iso][k];
+                    });
+                }
                 delete log[iso].is_rest;
                 if (Object.keys(log[iso]).length === 0) delete log[iso];
             } else {
-                log[iso] = { is_rest: true };
+                // Attivare il riposo
+                const weightsEntries = Object.keys(log[iso]).filter(k => {
+                    if (k === 'is_rest') return false;
+                    const ex = (typeof EXERCISES !== 'undefined' ? EXERCISES[k] : null);
+                    if (ex && ex.restDayOnly) return false;
+                    const entry = log[iso][k];
+                    return isDone(entry) || (entry && typeof entry === 'object' && Array.isArray(entry.sets) && entry.sets.length > 0);
+                });
+
+                if (weightsEntries.length > 0) {
+                    const n = weightsEntries.length;
+                    const msg = `Rimuovere ${n} esercizi con i pesi e segnare riposo?`;
+                    if (!confirm(msg)) return;
+                    weightsEntries.forEach(k => {
+                        delete log[iso][k];
+                    });
+                }
+                log[iso].is_rest = true;
             }
 
             saveLog(log);
@@ -1543,14 +1609,26 @@
             const dayLog = log[iso] || {};
 
             if (dayLog.is_rest) {
-                document.getElementById('day-subtitle').textContent = '';
-                list.innerHTML = `
-                  <div class="rest-day" style="text-align: center;">
+                const restDoneCount = Object.keys(dayLog).filter(k => k !== 'is_rest' && EXERCISES[k]?.restDayOnly && isDone(dayLog[k])).length;
+                document.getElementById('day-subtitle').textContent = restDoneCount > 0 ? `${restDoneCount} esercizio di riposo attivo completato` : 'Riposo dai pesi';
+                let uiHTML = `
+                  <div class="rest-day" style="text-align: center; margin-bottom: 20px;">
                     <div class="rest-emoji">😴</div>
-                    <p class="rest-title">Giorno di Riposo</p>
-                    <p class="rest-subtitle">Recupera le energie per la prossima sessione!</p>
-                    <button class="db-filter-btn" style="margin-top:15px; border-color:#8b949e; color:#c9d1d9;" onclick="toggleRestDay('${iso}')">Annulla Riposo</button>
-                  </div>`;
+                    <p class="rest-title">Riposo dai pesi</p>
+                    <p class="rest-subtitle">Recupera le energie o dedicati al riposo attivo.</p>
+                    <button class="db-filter-btn" style="margin-top:12px; border-color:#8b949e; color:#c9d1d9;" onclick="toggleRestDay('${iso}')">Annulla Riposo</button>
+                  </div>
+                  <div id="day-exercises-container"></div>
+                `;
+                list.innerHTML = uiHTML;
+                const container = document.getElementById('day-exercises-container');
+                Object.values(EXERCISES).forEach(exercise => {
+                    if (exercise.restDayOnly) {
+                        const done = isDone(dayLog[exercise.id]);
+                        const card = buildWorkoutCard(exercise.id, iso, done);
+                        container.appendChild(card);
+                    }
+                });
                 return;
             }
 
@@ -1564,7 +1642,7 @@
                 <div id="day-filter-container" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #30363d;">
             `;
 
-            GROUPS.forEach(g => {
+            GROUPS.filter(g => g !== 'Riposo attivo').forEach(g => {
                 const isActive = g === 'Tutti' ? 'active' : '';
                 uiHTML += `<button class="db-filter-btn day-group-btn ${isActive}" data-group="${g}" onclick="renderDayExercises('${iso}', '${g}')">${g}</button>`;
             });
@@ -1586,6 +1664,7 @@
             const dayLog = log[iso] || {};
 
             Object.values(EXERCISES).forEach(exercise => {
+                if (exercise.restDayOnly) return;
                 if (groupFilter !== 'Tutti' && exercise.muscleGroup !== groupFilter) return;
                 const done = isDone(dayLog[exercise.id]);
                 const card = buildWorkoutCard(exercise.id, iso, done);
@@ -1611,25 +1690,57 @@
             return rows;
         }
 
-        function addSeriesRowData(rows) {
-            const last = rows[rows.length - 1] || { weight: '', reps: '' };
-            return [...rows, { weight: last.weight, reps: last.reps, touched: false }];
+        function addSeriesRowData(rows, fields) {
+            const last = rows[rows.length - 1] || {};
+            const newRow = { touched: false };
+            if (fields && Array.isArray(fields) && fields.length > 0) {
+                fields.forEach(f => {
+                    newRow[f.key] = last[f.key] !== undefined ? last[f.key] : '';
+                });
+            } else {
+                newRow.weight = last.weight !== undefined ? last.weight : '';
+                newRow.reps = last.reps !== undefined ? last.reps : '';
+            }
+            return [...rows, newRow];
         }
 
         function renderSeriesRowsHTML(exerciseId, iso, sets) {
-            return sets.map((s, idx) => `
-                <div class="set-row" data-set-index="${idx}" data-user-modified="false">
-                    <span class="set-label">#${idx + 1}</span>
-                    <div class="set-input-group">
-                        <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${s.weight != null ? s.weight : ''}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'weight')">
-                        <span class="set-unit">kg</span>
+            const exercise = (typeof EXERCISES !== 'undefined' ? EXERCISES[exerciseId] : null);
+            const fields = exercise?.fields;
+
+            return sets.map((s, idx) => {
+                let inputsHTML = '';
+                if (fields && Array.isArray(fields) && fields.length > 0) {
+                    inputsHTML = fields.map(f => {
+                        const inputmode = f.inputmode || (f.key === 'steps' ? 'numeric' : 'decimal');
+                        const val = s && s[f.key] != null ? s[f.key] : '';
+                        return `
+                            <div class="set-input-group">
+                                <input type="text" inputmode="${inputmode}" class="set-input set-${f.key}" placeholder="${f.label}" value="${val}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, '${f.key}')">
+                                <span class="set-unit">${f.label}</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    inputsHTML = `
+                        <div class="set-input-group">
+                            <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${s && s.weight != null ? s.weight : ''}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'weight')">
+                            <span class="set-unit">kg</span>
+                        </div>
+                        <div class="set-input-group">
+                            <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${s && s.reps != null ? s.reps : ''}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'reps')">
+                            <span class="set-unit">rip</span>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="set-row" data-set-index="${idx}" data-user-modified="false">
+                        <span class="set-label">#${idx + 1}</span>
+                        ${inputsHTML}
                     </div>
-                    <div class="set-input-group">
-                        <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${s.reps != null ? s.reps : ''}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'reps')">
-                        <span class="set-unit">rip</span>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function markRowTouched(inputEl) {
@@ -1659,8 +1770,36 @@
             const rows = list.querySelectorAll('.set-row');
             const newIdx = rows.length;
             const lastRow = rows[newIdx - 1];
-            const prevWeight = lastRow ? (lastRow.querySelector('.set-weight')?.value || '') : '';
-            const prevReps = lastRow ? (lastRow.querySelector('.set-reps')?.value || '') : '';
+
+            const exercise = (typeof EXERCISES !== 'undefined' ? EXERCISES[exerciseId] : null);
+            const fields = exercise?.fields;
+
+            let inputsHTML = '';
+            if (fields && Array.isArray(fields) && fields.length > 0) {
+                inputsHTML = fields.map(f => {
+                    const prevVal = lastRow ? (lastRow.querySelector(`.set-${f.key}`)?.value || '') : '';
+                    const inputmode = f.inputmode || (f.key === 'steps' ? 'numeric' : 'decimal');
+                    return `
+                        <div class="set-input-group">
+                            <input type="text" inputmode="${inputmode}" class="set-input set-${f.key}" placeholder="${f.label}" value="${prevVal}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, '${f.key}')">
+                            <span class="set-unit">${f.label}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                const prevWeight = lastRow ? (lastRow.querySelector('.set-weight')?.value || '') : '';
+                const prevReps = lastRow ? (lastRow.querySelector('.set-reps')?.value || '') : '';
+                inputsHTML = `
+                    <div class="set-input-group">
+                        <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${prevWeight}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'weight')">
+                        <span class="set-unit">kg</span>
+                    </div>
+                    <div class="set-input-group">
+                        <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${prevReps}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'reps')">
+                        <span class="set-unit">rip</span>
+                    </div>
+                `;
+            }
 
             const row = document.createElement('div');
             row.className = 'set-row';
@@ -1668,14 +1807,7 @@
             row.dataset.userModified = 'false';
             row.innerHTML = `
                 <span class="set-label">#${newIdx + 1}</span>
-                <div class="set-input-group">
-                    <input type="text" inputmode="decimal" class="set-input set-weight" placeholder="kg" value="${prevWeight}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'weight')">
-                    <span class="set-unit">kg</span>
-                </div>
-                <div class="set-input-group">
-                    <input type="text" inputmode="numeric" class="set-input set-reps" placeholder="rip" value="${prevReps}" onfocus="markRowTouched(this)" oninput="handleSeriesInput('${exerciseId}', '${iso}', this, 'reps')">
-                    <span class="set-unit">rip</span>
-                </div>
+                ${inputsHTML}
             `;
             list.appendChild(row);
             saveSeriesFromUI(exerciseId, iso);
@@ -1705,7 +1837,7 @@
                         for (let i = 1; i < rows.length; i++) {
                             const r = rows[i];
                             if (r.dataset.userModified !== 'true') {
-                                const targetInput = r.querySelector(field === 'weight' ? '.set-weight' : '.set-reps');
+                                const targetInput = r.querySelector(`.set-${field}`);
                                 if (targetInput) {
                                     targetInput.value = newVal;
                                 }
@@ -1728,18 +1860,44 @@
             const currentEntry = getEntry(iso, exerciseId);
             const done = isDone(currentEntry);
 
+            const exercise = (typeof EXERCISES !== 'undefined' ? EXERCISES[exerciseId] : null);
+            const fields = exercise?.fields;
+
             const rows = acc.querySelectorAll('.set-row');
             const sets = [];
             rows.forEach(r => {
-                const wVal = r.querySelector('.set-weight')?.value.trim();
-                const rVal = r.querySelector('.set-reps')?.value.trim();
-                const hasW = (wVal != null && wVal !== '');
-                const hasR = (rVal != null && rVal !== '');
-                if (!hasW && !hasR) return; // Scarta righe con peso e ripetizioni entrambi vuoti
+                if (fields && Array.isArray(fields) && fields.length > 0) {
+                    const setObj = {};
+                    let hasAnyVal = false;
+                    fields.forEach(f => {
+                        const valStr = r.querySelector(`.set-${f.key}`)?.value.trim();
+                        if (valStr != null && valStr !== '') {
+                            hasAnyVal = true;
+                            if (f.key === 'steps') {
+                                const parsedSteps = parseInt(valStr.replace(/\D/g, ''), 10);
+                                setObj[f.key] = !isNaN(parsedSteps) ? parsedSteps : valStr;
+                            } else {
+                                const parsedNum = parseFloat(valStr.replace(',', '.'));
+                                setObj[f.key] = !isNaN(parsedNum) ? parsedNum : valStr;
+                            }
+                        } else {
+                            setObj[f.key] = null;
+                        }
+                    });
+                    if (hasAnyVal) {
+                        sets.push(setObj);
+                    }
+                } else {
+                    const wVal = r.querySelector('.set-weight')?.value.trim();
+                    const rVal = r.querySelector('.set-reps')?.value.trim();
+                    const hasW = (wVal != null && wVal !== '');
+                    const hasR = (rVal != null && rVal !== '');
+                    if (!hasW && !hasR) return; // Scarta righe con peso e ripetizioni entrambi vuoti
 
-                const weight = hasW ? (parseFloat(wVal.replace(',', '.')) || wVal) : null;
-                const reps = hasR ? (parseInt(rVal, 10) || rVal) : null;
-                sets.push({ weight, reps });
+                    const weight = hasW ? (parseFloat(wVal.replace(',', '.')) || wVal) : null;
+                    const reps = hasR ? (parseInt(rVal, 10) || rVal) : null;
+                    sets.push({ weight, reps });
+                }
             });
 
             const noteVal = acc.querySelector('.set-note-input')?.value.trim() || '';
@@ -1845,28 +2003,50 @@
 
             const badgeClass = `badge-${exercise.muscleGroup.toLowerCase()}`;
             let repsText = `${exercise.sets} serie × ${exercise.reps}`;
-            if (!exercise.reps.includes('sec') && !exercise.reps.includes('per gamba')) {
+            if (exercise.reps === 'a tempo') {
+                repsText = `${exercise.sets} serie · a tempo`;
+            } else if (!exercise.reps.includes('sec') && !exercise.reps.includes('per gamba')) {
                 repsText += ' rip.';
             }
 
             const currentEntry = getEntry(iso, id);
             const lastExec = getLastExerciseExecution(id, iso);
-            const lastHint = formatLastExecutionHint(lastExec);
+            const lastHint = formatLastExecutionHint(lastExec, exercise);
             const history = getExerciseHistory(id, iso, 5);
 
             let initialSets = [];
             if (currentEntry && typeof currentEntry === 'object' && Array.isArray(currentEntry.sets) && currentEntry.sets.length > 0) {
                 initialSets = currentEntry.sets;
             } else if (lastExec && lastExec.entry && Array.isArray(lastExec.entry.sets) && lastExec.entry.sets.length > 0) {
-                initialSets = lastExec.entry.sets.map(s => ({
-                    weight: s.weight != null ? s.weight : '',
-                    reps: s.reps != null ? s.reps : ''
-                }));
+                initialSets = lastExec.entry.sets.map(s => {
+                    if (exercise.fields) {
+                        const rowObj = {};
+                        exercise.fields.forEach(f => {
+                            rowObj[f.key] = s[f.key] != null ? s[f.key] : '';
+                        });
+                        return rowObj;
+                    }
+                    return {
+                        weight: s.weight != null ? s.weight : '',
+                        reps: s.reps != null ? s.reps : ''
+                    };
+                });
             } else {
-                const count = getDefaultSetsCount(exercise);
-                for (let i = 0; i < count; i++) initialSets.push({ weight: '', reps: '' });
+                const count = exercise.fields ? 1 : getDefaultSetsCount(exercise);
+                for (let i = 0; i < count; i++) {
+                    if (exercise.fields) {
+                        const rowObj = {};
+                        exercise.fields.forEach(f => { rowObj[f.key] = ''; });
+                        initialSets.push(rowObj);
+                    } else {
+                        initialSets.push({ weight: '', reps: '' });
+                    }
+                }
             }
             const noteValue = (currentEntry && typeof currentEntry === 'object' && currentEntry.note) ? currentEntry.note : '';
+
+            const addBtnLabel = exercise.fields ? '+ riga' : '+ serie';
+            const removeBtnLabel = exercise.fields ? '− riga' : '− serie';
 
             const card = document.createElement('div');
             card.className = 'exercise-card' + (done ? ' done' : '');
@@ -1891,8 +2071,8 @@
                         ${renderSeriesRowsHTML(id, iso, initialSets)}
                     </div>
                     <div class="series-actions">
-                        <button type="button" class="set-action-btn" onclick="addSetRow('${id}', '${iso}')">+ serie</button>
-                        <button type="button" class="set-action-btn" onclick="removeSetRow('${id}', '${iso}')">− serie</button>
+                        <button type="button" class="set-action-btn" onclick="addSetRow('${id}', '${iso}')">${addBtnLabel}</button>
+                        <button type="button" class="set-action-btn" onclick="removeSetRow('${id}', '${iso}')">${removeBtnLabel}</button>
                     </div>
                     <div class="set-note-row">
                         <input type="text" class="set-note-input" placeholder="Nota opzionale (es. carico, fatica...)" value="${noteValue.replace(/"/g, '&quot;')}" oninput="handleSeriesInput('${id}', '${iso}')">
@@ -1916,10 +2096,18 @@
                 if (existingSets.length === 0) {
                     const lastExec = getLastExerciseExecution(exerciseId, selectedDate);
                     if (lastExec && lastExec.entry && Array.isArray(lastExec.entry.sets) && lastExec.entry.sets.length > 0) {
-                        existingSets = lastExec.entry.sets.map(s => ({
-                            weight: s.weight != null ? s.weight : null,
-                            reps: s.reps != null ? s.reps : null
-                        }));
+                        const ex = (typeof EXERCISES !== 'undefined' ? EXERCISES[exerciseId] : null);
+                        existingSets = lastExec.entry.sets.map(s => {
+                            if (ex && ex.fields) {
+                                const copy = {};
+                                ex.fields.forEach(f => { copy[f.key] = s[f.key] != null ? s[f.key] : null; });
+                                return copy;
+                            }
+                            return {
+                                weight: s.weight != null ? s.weight : null,
+                                reps: s.reps != null ? s.reps : null
+                            };
+                        });
                     }
                 }
 
@@ -1957,10 +2145,15 @@
 
             const log = loadLog();
             const dayLog = log[selectedDate] || {};
-            const doneCount = countDoneExercises(dayLog);
             const subtitleEl = document.getElementById('day-subtitle');
             if (subtitleEl) {
-                subtitleEl.textContent = `${doneCount} esercizi completati in questa giornata`;
+                if (dayLog.is_rest) {
+                    const restDone = Object.keys(dayLog).filter(k => k !== 'is_rest' && EXERCISES[k]?.restDayOnly && isDone(dayLog[k])).length;
+                    subtitleEl.textContent = restDone > 0 ? `${restDone} esercizio di riposo attivo completato` : 'Riposo dai pesi';
+                } else {
+                    const doneCount = countDoneExercises(dayLog);
+                    subtitleEl.textContent = `${doneCount} esercizi completati in questa giornata`;
+                }
             }
         }
 
@@ -2171,17 +2364,24 @@
         function computePeriodWorkouts(dates, log, exercises) {
             if (!exercises) exercises = (typeof EXERCISES !== 'undefined' ? EXERCISES : {});
             if (!log) log = {};
-            const muscleGroupsOrder = (typeof GROUPS !== 'undefined' ? GROUPS : ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei"]).filter(g => g !== 'Tutti');
+            const muscleGroupsOrder = (typeof GROUPS !== 'undefined' ? GROUPS : ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei", "Riposo attivo"]).filter(g => g !== 'Tutti');
 
             const groupDayCounts = {};
             muscleGroupsOrder.forEach(g => { groupDayCounts[g] = 0; });
 
             (dates || []).forEach(d => {
                 const dayLog = log[d];
-                if (!dayLog || dayLog.is_rest) return;
+                if (!dayLog) return;
+                if (dayLog.is_rest) {
+                    const hasActiveRest = Object.keys(dayLog).some(id => id !== 'is_rest' && exercises[id]?.restDayOnly && isDone(dayLog[id]));
+                    if (hasActiveRest && groupDayCounts['Riposo attivo'] !== undefined) {
+                        groupDayCounts['Riposo attivo']++;
+                    }
+                    return;
+                }
                 const dayGroups = new Set();
                 Object.keys(dayLog).forEach(id => {
-                    if (id !== 'is_rest' && exercises[id] && isDone(dayLog[id])) {
+                    if (id !== 'is_rest' && exercises[id] && !exercises[id].restDayOnly && isDone(dayLog[id])) {
                         dayGroups.add(exercises[id].muscleGroup);
                     }
                 });
@@ -2208,10 +2408,12 @@
                 if (!dayLog) return;
 
                 if (dayLog.is_rest) {
+                    const hasActiveRest = Object.keys(dayLog).some(id => id !== 'is_rest' && exercises[id]?.restDayOnly && isDone(dayLog[id]));
                     daysList.push({
                         date: d,
                         isRest: true,
-                        groups: [],
+                        hasActiveRest: hasActiveRest,
+                        groups: hasActiveRest ? ['Riposo attivo'] : [],
                         exercisesCount: 0
                     });
                     return;
@@ -2220,7 +2422,7 @@
                 let doneCount = 0;
                 const dayGroupsSet = new Set();
                 Object.keys(dayLog).forEach(id => {
-                    if (id !== 'is_rest' && exercises[id] && isDone(dayLog[id])) {
+                    if (id !== 'is_rest' && exercises[id] && !exercises[id].restDayOnly && isDone(dayLog[id])) {
                         doneCount++;
                         dayGroupsSet.add(exercises[id].muscleGroup);
                     }
@@ -2271,12 +2473,16 @@
                     let centerHTML = '';
                     let countHTML = '';
                     if (item.isRest) {
-                        centerHTML = `<span style="color:#8b949e; font-size:0.85rem; font-style:italic;">😴 Riposo</span>`;
+                        if (item.hasActiveRest) {
+                            centerHTML = `<div style="display:flex; align-items:center; gap:6px;"><span style="color:#8b949e; font-size:0.85rem; font-style:italic;">😴 Riposo</span><div class="period-workout-badges"><span class="muscle-badge badge-riposo-attivo">Riposo attivo</span></div></div>`;
+                        } else {
+                            centerHTML = `<span style="color:#8b949e; font-size:0.85rem; font-style:italic;">😴 Riposo</span>`;
+                        }
                         countHTML = `<span class="period-workout-count">—</span>`;
                     } else {
                         centerHTML = `
                             <div class="period-workout-badges">
-                                ${item.groups.map(g => `<span class="muscle-badge badge-${g.toLowerCase()}">${g}</span>`).join('')}
+                                ${item.groups.map(g => `<span class="muscle-badge badge-${g.toLowerCase().replace(/\s+/g, '-')}">${g}</span>`).join('')}
                             </div>`;
                         countHTML = `<span class="period-workout-count">${item.exercisesCount} ${item.exercisesCount === 1 ? 'es.' : 'es.'}</span>`;
                     }
