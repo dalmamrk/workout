@@ -23,30 +23,45 @@ Sito **statico** pubblicato con GitHub Pages (`dalmamrk/workout`), senza framewo
 - `index.html` (~118 KB): dashboard interattiva per l'allenamento — calendario compatto a 4 giorni su singola riga, gestione serie carichi/ripetizioni con cascata automatica, riposo dai pesi e riposo attivo, passi giornalieri retroattivi, timer di recupero, statistiche con badge muscolari ordinati e riepilogo periodo, export/import JSON e backup locali. Tutto il JS è inline.
 - `ex.html` (~27 KB): catalogo dei 32 esercizi con illustrazioni dark/neon e filtri per gruppo muscolare.
 - `immagini/`: illustrazioni **PNG/JPG raster** (non vettoriali), stile dark/neon.
-- `sw.js`: Service Worker offline-first (attualmente versione `workout-v5`).
+- `sw.js`: Service Worker offline-first (attualmente versione `workout-v6`).
 - Cartelle `scheda/`, `prompt_*`, `istruzioni_agente.md`, `node_modules/`, `_archivio/` sono materiale di lavoro locale ignorato da Git: non pubblicarle, non cancellarle. Le vecchie cartelle `aggiornamento_*` sono state rimosse perché obsolete.
 
-## Fatti tecnici verificati (aggiornati al 2026-10-01, versione workout-v5)
+## Fatti tecnici verificati (aggiornati al 2026-10-01, versione workout-v6)
 
 - `EXERCISES` in `index.html` (~riga 677): **32 voci** (#1..#32), allineate a `ex.html` (incluso #32 `farmer_walk` nel gruppo "Riposo attivo"). Campo opzionale `image` (usato da `Dumbbell_Bench_Hip_Thrust.jpg`).
+- Palette Dark Sofisticata **Blu & Arancio**:
+  - `--bg-primary: #0B1220;`, `--bg-secondary: #101A2B;`, `--surface-blue: #111D31;`, `--surface-raised: #172740;`
+  - `--border: #536985;`, `--text-primary: #F4F7FF;` (17.4:1 contrasto), `--text-secondary: #B7C5D8;` (>9:1 contrasto)
+  - Accento primario: `--accent-orange: #FF7A1A;` (`linear-gradient(135deg, #FF7A1A 0%, #FF9E4A 100%)`) su giorno selezionato, tab attive, CTA, timer e barre.
+  - Accenti semantici: `--accent-cyan: #47D7FF;`, `--success: #7BE0A1;`, `--warning: #FFD166;`, `--danger: #FF7373;`.
+- **Timer di Recupero Globale**:
+  - Widget sticky bottom `#workout-timer-widget` con display numerico a 1.8rem (32–36 px), progress bar fluida, preset a 1 tocco (`45s`, `60s`, `90s`, `120s`, `+15s`) e controlli Play/Pausa/Reset.
+  - Basato su timestamp orario reale (`targetTimestamp = Date.now() + ms`): resistente a sospensione di iOS in background e risincronizzato al millisecondo su `visibilitychange` e `focus`.
+  - Notifica completamento: feedback visivo a contrasto, viraggio colore a `--warning` negli ultimi 5s e `--success` a 0s, vibrazione e segnale sonoro soft generato con Web Audio API (100% offline).
+  - Tasto rapido `⏱️ 60s` integrato su ogni card esercizio.
+- **Card Esercizio & Ergonomia Workout**:
+  - Rimosso il testo barrato sul nome esercizio a completamento (`text-decoration: none`) per preservare la leggibilità a colpo d'occhio a distanza.
+  - Target touch: bottoni filtro database `#db-filter-container` e filtri `ex.html` portati a `min-height: 44px`.
+- **Catalogo Responsive `ex.html`**:
+  - Mobile-first con `@media (max-width: 600px)` che converte le righe tabellari in card verticali fluide con immagine fluida e prescrizioni evidenti.
 - Caricamento dinamico immagini: `immagini/${exercise.image || id + '.png'}`.
 - Storage centralizzato (`loadLog()`, `loadSteps()`, `saveLog()`, `saveStepsData()`):
   - `wlog` = `{ "YYYY-MM-DD": { "<exerciseId>": { done: true, sets: [...], note: "" }, "is_rest": true } }`.
   - `steps_history` = `{ "YYYY-MM-DD": <numero passi> }`.
   - `wlog_backup` = array di max 3 snapshot `{at, log, steps}` (prima di ogni import e 1 volta/giorno all'avvio).
   - JSON corrotto → copia in `<chiave>_corrupt_<ts>`, notifica in UI `#data-status`, fallback `{}`.
-- Calendario Programma: mostra solo 4 giorni fissi (-3..0, nessuna data futura) su una singola riga a 390 px senza scroll orizzontale, altezza pulsanti ≥ 44 px per touch iPhone. Unico segno di evidenza: accento ciano (`linear-gradient`) sul giorno selezionato (rimossi pallini e puntini sparsi).
+- Calendario Programma: mostra solo 4 giorni fissi (-3..0, nessuna data futura) su una singola riga a 390 px senza scroll orizzontale, altezza pulsanti ≥ 44 px per touch iPhone. Unico segno di evidenza: accento arancio (`linear-gradient`) sul giorno selezionato (rimossi pallini e puntini sparsi).
 - Rilevamento cambio giorno su resume (`checkDateChangeOnResume`): su `visibilitychange` e `focus`, se la data cambia (es. dopo mezzanotte), rigenera i 4 giorni, seleziona il nuovo oggi ed effettua il backup giornaliero.
 - Serie e carichi: compilazione a cascata dalla prima riga a quelle successive se non modificate manualmente (`userModified`), ereditarietà per nuove serie aggiunte (`+ serie`) e precompilazione dall'ultima esecuzione registrata.
 - Riposo dai pesi e riposo attivo: `is_rest` marca il riposo dai pesi senza bloccare o azzerare esercizi di riposo attivo (es. Farmer's Walk con minuti, carico, passi) né il tracking dei passi.
 - Passi retroattivi: inseribili per tutti i 4 giorni visibili nel calendario (passati e oggi), bloccati per date future.
-- Test locali (ignorati da Git): `node test_storage.js` (storage, cascata serie, passi retroattivi, statistiche, calendario, riposo attivo: tutti verdi), `node verifica.js` (32 esercizi e immagini sincronizzati). Entrambi devono restare verdi.
+- Test locali (ignorati da Git): `node test_storage.js` (139/139 test verdi compresi timer, palette, contrasti, cascata, riposo attivo), `node verifica.js` (32 esercizi e immagini sincronizzati). Entrambi devono restare verdi.
 
 ## Come lavorare
 
 - Leggi prima `HANDOFF_GEMINI.md` (se presente), `piano_implemento_workout.md` e `avanzamento_piano.md`.
 - A fine fase aggiorna `avanzamento_piano.md`.
-- **Fondamentale per iPhone PWA**: ogni modifica a file serviti dal sito (html, immagini, manifest, icone, sw.js) richiede di incrementare `CACHE_VERSION` in `sw.js` (`workout-v1` → `v2` → … `v5`), altrimenti l'app installata su iPhone resta sulla versione in cache.
+- **Fondamentale per iPhone PWA**: ogni modifica a file serviti dal sito (html, immagini, manifest, icone, sw.js) richiede di incrementare `CACHE_VERSION` in `sw.js` (`workout-v1` → `v2` → … `v6`), altrimenti l'app installata su iPhone resta sulla versione in cache.
 - Input touch mobile su iPhone: tastiere numeriche con `inputmode="decimal"` o `"numeric"`, font input ≥ 16 px (per prevenire lo zoom automatico di Safari/iOS), touch target ≥ 44 px.
 - Piccoli commit logici con messaggi chiari in italiano. **Mai `git push`**, mai `git reset --hard`, mai riscrivere la storia: il push lo fa l'utente.
 - **Modifiche piccole e mirate**: usa lo strumento di modifica su poche righe alla volta. Non riscrivere mai `index.html` per intero.
@@ -78,3 +93,11 @@ Sito **statico** pubblicato con GitHub Pages (`dalmamrk/workout`), senza framewo
   - Gestione avanzata giorno di riposo: distinzione tra riposo dai pesi e riposo attivo, senza bloccare la registrazione delle attività.
   - Pulizia cartelle obsolete di lavorazione (`aggiornamento_chest`, `aggiornamento_shoulder`, `aggiornamento_legs`).
   - Incremento PWA a `workout-v5`.
+- **Restyling Grafico Blu & Arancio, Timer di Recupero Globale & UX Mobile — Deploy v6 (2026-10-01) [Gemini 3.8 Flash]**:
+  - Implementazione completa delle raccomandazioni di `PROPOSTA_UX_RESTYLING.md`.
+  - Nuova palette dark ad alto contrasto (WCAG AAA) con Navy (`#0B1220`) e Arancio Energetico (`#FF7A1A`).
+  - Timer di Recupero Globale sticky bottom con progress bar, preset a 1 tocco (`45s`, `60s`, `90s`, `120s`, `+15s`), supporto orario reale anti-sospensione iOS e pulsante rapido `⏱️ 60s` nelle card.
+  - Miglioramento leggibilità in allenamento: rimozione barratura su nome esercizio completato, tap target filtri ≥ 44 px.
+  - Catalogo `ex.html` responsive mobile-first a colonna singola su viewport smartphone.
+  - Grafico delle statistiche ricolorato con la nuova palette.
+  - Incremento PWA a `workout-v6`.

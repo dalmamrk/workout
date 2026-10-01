@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0d1117">
+    <meta name="theme-color" content="#0B1220">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Workout">
@@ -14,6 +14,26 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <style>
+        :root {
+            --bg-primary: #0B1220;
+            --bg-secondary: #101A2B;
+            --surface-blue: #111D31;
+            --surface-raised: #172740;
+            --border: #536985;
+            --border-light: rgba(83, 105, 133, 0.35);
+            --text-primary: #F4F7FF;
+            --text-secondary: #B7C5D8;
+            --accent-orange: #FF7A1A;
+            --accent-orange-pressed: #E96508;
+            --accent-orange-gradient: linear-gradient(135deg, #FF7A1A 0%, #FF9E4A 100%);
+            --accent-cyan: #47D7FF;
+            --success: #7BE0A1;
+            --warning: #FFD166;
+            --danger: #FF7373;
+            --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.3);
+            --glow-orange: 0 0 14px rgba(255, 122, 26, 0.4);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -27,8 +47,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0d1117;
-            color: #e6edf3;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             padding-top: max(16px, env(safe-area-inset-top));
             padding-left: max(16px, env(safe-area-inset-left));
@@ -46,8 +66,8 @@
             transform: translateX(-50%);
             width: calc(100% - 32px);
             max-width: 440px;
-            background: #161b22;
-            border: 1px solid #388bfd;
+            background: var(--surface-raised);
+            border: 1px solid var(--accent-orange);
             box-shadow: 0 4px 16px rgba(0,0,0,0.6);
             border-radius: 12px;
             padding: 12px 16px;
@@ -58,7 +78,7 @@
             z-index: 9999;
             cursor: pointer;
             font-size: 0.9rem;
-            color: #f0f6fc;
+            color: var(--text-primary);
             min-height: 48px;
         }
         #pwa-update-banner .update-text {
@@ -68,13 +88,13 @@
             font-weight: 500;
         }
         #pwa-update-banner .update-btn {
-            background: #238636;
-            color: white;
+            background: var(--accent-orange);
+            color: #0B1220;
             border: none;
             border-radius: 6px;
-            padding: 6px 12px;
+            padding: 6px 14px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             min-height: 36px;
             cursor: pointer;
             white-space: nowrap;
@@ -85,7 +105,7 @@
             font-weight: 700;
             text-align: center;
             margin-bottom: 20px;
-            color: #e6edf3;
+            color: var(--text-primary);
         }
 
         /* Nav Tabs */
@@ -95,13 +115,14 @@
             margin-bottom: 20px;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border);
+            background-color: var(--surface-blue);
         }
 
         .nav-tab {
             flex: 1;
-            background-color: #21262d;
-            color: #c9d1d9;
+            background-color: var(--surface-raised);
+            color: var(--text-secondary);
             border: none;
             padding: 14px 8px;
             font-size: 0.9rem;
@@ -112,9 +133,10 @@
         }
 
         .nav-tab.active {
-            background-color: #58a6ff;
-            color: #0d1117;
-            font-weight: 700;
+            background: var(--accent-orange-gradient);
+            color: #0B1220;
+            font-weight: 800;
+            box-shadow: var(--glow-orange);
         }
 
         .nav-tab:active {
@@ -130,9 +152,9 @@
         }
 
         .day-btn {
-            background-color: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
+            background-color: var(--surface-blue);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 10px 4px;
             font-size: 0.82rem;
@@ -150,48 +172,50 @@
             position: relative;
         }
 
-        .day-num { font-size: 0.72rem; font-weight: 700; opacity: 0.9; }
+        .day-num { font-size: 0.72rem; font-weight: 700; opacity: 0.95; }
 
         .day-btn:active {
             transform: scale(0.95);
         }
 
-        /* Unico segno di evidenza: il giorno selezionato con lo stile ciano */
+        /* Unico segno di evidenza: il giorno selezionato con lo stile Arancio */
         .day-btn.active {
-            background: linear-gradient(135deg, #0096c7 0%, #38bdf8 100%);
-            border-color: #38bdf8;
-            color: #03131e;
+            background: var(--accent-orange-gradient);
+            border-color: var(--accent-orange);
+            color: #0B1220;
             font-weight: 800;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            box-shadow: var(--glow-orange);
         }
 
-        /* Indicatore giorno di riposo discreto (testo in corsivo grigio tenue, nessun pallino né bordo speciale) */
+        /* Indicatore giorno di riposo discreto */
         .day-btn.rest {
-            color: #8b949e;
+            color: var(--text-secondary);
             font-style: italic;
         }
 
         .day-btn.rest.active {
-            background: linear-gradient(135deg, #0096c7 0%, #38bdf8 100%);
-            color: #03131e;
-            border-color: #38bdf8;
+            background: var(--accent-orange-gradient);
+            color: #0B1220;
+            border-color: var(--accent-orange);
             font-weight: 800;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            box-shadow: var(--glow-orange);
             font-style: italic;
         }
 
         /* Sezione passi */
         #steps-section {
-            background-color: #161b22;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 16px 20px;
             margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
         }
 
         #steps-section h3 {
             margin: 0;
             font-size: 1rem;
-            color: #e6edf3;
+            color: var(--text-primary);
         }
 
         .steps-input-row {
@@ -201,36 +225,39 @@
         }
 
         #steps-input {
-            background-color: #0d1117;
-            border: 1px solid #30363d;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            color: #e6edf3;
+            color: var(--text-primary);
             font-size: 1.2rem;
             padding: 12px 16px;
             width: 100%;
             flex: 1;
             outline: none;
+            min-height: 48px;
         }
 
         #steps-input:focus {
-            border-color: #58a6ff;
+            border-color: var(--accent-orange);
         }
 
         #steps-save-btn {
-            background-color: #238636;
-            color: white;
+            background: var(--accent-orange-gradient);
+            color: #0B1220;
+            font-weight: 800;
             border: none;
             border-radius: 8px;
             font-size: 1.2rem;
             padding: 12px 16px;
             min-width: 48px;
+            min-height: 48px;
             cursor: pointer;
         }
 
         #steps-display {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #58a6ff;
+            color: var(--accent-orange);
             margin-top: 12px;
         }
 
@@ -255,37 +282,39 @@
         #day-title {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #e6edf3;
+            color: var(--text-primary);
         }
 
         #day-subtitle {
             font-size: 0.85rem;
-            color: #8b949e;
+            color: var(--text-secondary);
             margin-top: 4px;
         }
 
         /* Card Esercizio */
         .exercise-card {
-            background-color: #161b22;
-            border: 1px solid #21262d;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 16px;
-            margin-bottom: 12px;
-            border-left: 3px solid transparent;
-            transition: border-color 0.2s ease;
+            margin-bottom: 14px;
+            border-left: 4px solid transparent;
+            box-shadow: var(--shadow-card);
+            transition: all 0.2s ease;
         }
 
         .exercise-card.done {
-            border-left-color: #238636;
+            border-left-color: var(--success);
         }
 
         .exercise-card-image {
             width: 100%;
             aspect-ratio: 2 / 1;
-            background-color: #0d1117;
+            background-color: var(--bg-primary);
             border-radius: 8px;
             overflow: hidden;
             margin-bottom: 12px;
+            border: 1px solid var(--border);
         }
 
         .exercise-card-image img {
@@ -303,49 +332,53 @@
         }
 
         .exercise-name {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: #e6edf3;
+            color: var(--text-primary);
         }
 
+        /* Testo leggibile anche se completato (non barrato) per scansione rapida a colpo d'occhio */
         .exercise-card.done .exercise-name {
-            text-decoration: line-through;
-            color: #8b949e;
+            text-decoration: none;
+            color: var(--text-primary);
         }
 
         .muscle-badge {
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 3px 8px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 4px 10px;
             border-radius: 20px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             white-space: nowrap;
+            background-color: var(--surface-raised);
+            color: var(--accent-cyan);
+            border: 1px solid var(--border);
         }
 
-        /* Colori Badge */
-        .badge-petto { background-color: #1f3a2e; color: #56d364; }
-        .badge-bicipiti { background-color: #3b1f3a; color: #d2a8ff; }
-        .badge-tricipiti { background-color: #3b2f1f; color: #f0b858; }
-        .badge-spalle { background-color: #1f2d3b; color: #79c0ff; }
-        .badge-dorso { background-color: #3b1f1f; color: #ff7b72; }
-        .badge-core { background-color: #2b3a1f; color: #a5d66e; }
-        .badge-gambe { background-color: #1f3a3a; color: #56d3c4; }
-        .badge-glutei { background-color: #3b1f2e; color: #ff9ec4; }
-        .badge-gambe\ e\ glutei { background-color: #1f3a3a; color: #56d3c4; }
-        .badge-riposo\ attivo, .badge-riposo-attivo { background-color: #26223b; color: #b392f0; }
+        /* Colori Badge con contrasti ottimizzati */
+        .badge-petto { background-color: rgba(71, 215, 255, 0.15); color: #47D7FF; border-color: rgba(71, 215, 255, 0.35); }
+        .badge-bicipiti { background-color: rgba(210, 168, 255, 0.15); color: #d2a8ff; border-color: rgba(210, 168, 255, 0.35); }
+        .badge-tricipiti { background-color: rgba(255, 209, 102, 0.15); color: #FFD166; border-color: rgba(255, 209, 102, 0.35); }
+        .badge-spalle { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); }
+        .badge-dorso { background-color: rgba(255, 115, 115, 0.15); color: #FF7373; border-color: rgba(255, 115, 115, 0.35); }
+        .badge-core { background-color: rgba(123, 224, 161, 0.15); color: #7BE0A1; border-color: rgba(123, 224, 161, 0.35); }
+        .badge-gambe, .badge-glutei, .badge-gambe\ e\ glutei { background-color: rgba(86, 211, 196, 0.15); color: #56d3c4; border-color: rgba(86, 211, 196, 0.35); }
+        .badge-riposo\ attivo, .badge-riposo-attivo { background-color: rgba(255, 122, 26, 0.15); color: var(--accent-orange); border-color: rgba(255, 122, 26, 0.4); }
 
         .exercise-sets {
             margin-top: 8px;
-            font-size: 0.9rem;
-            color: #58a6ff;
-            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--accent-orange);
+            font-weight: 700;
         }
 
         .toggle-desc-btn {
             background-color: transparent;
             border: none;
-            color: #58a6ff;
-            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            font-size: 0.82rem;
+            font-weight: 600;
             cursor: pointer;
             padding: 6px 0;
             margin-top: 6px;
@@ -354,9 +387,9 @@
         .exercise-desc {
             display: none;
             margin-top: 10px;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             line-height: 1.5;
-            color: #8b949e;
+            color: var(--text-secondary);
         }
 
         /* Bottone "fatto" — target tap grande */
@@ -369,12 +402,12 @@
             margin-top: 14px;
             padding: 16px;
             min-height: 56px;
-            background-color: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
+            background-color: var(--surface-raised);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.15s ease;
         }
@@ -388,7 +421,7 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            border: 2px solid #8b949e;
+            border: 2px solid var(--text-secondary);
             color: transparent;
             font-size: 0.85rem;
             line-height: 1;
@@ -396,18 +429,20 @@
         }
 
         .done-btn.done {
-            background-color: #238636;
-            color: #fff;
-            border-color: #238636;
+            background-color: var(--success);
+            color: #0B1220;
+            border-color: var(--success);
+            font-weight: 800;
         }
 
         .done-btn.done .check {
-            background-color: #fff;
-            border-color: #fff;
-            color: #238636;
+            background-color: #0B1220;
+            border-color: #0B1220;
+            color: var(--success);
+            font-weight: 900;
         }
 
-        /* Accordion Serie (Fase 2 B2) */
+        /* Accordion Serie */
         .toggle-series-btn {
             display: flex;
             align-items: center;
@@ -416,28 +451,28 @@
             min-height: 44px;
             padding: 10px 14px;
             margin-top: 10px;
-            background-color: #21262d;
-            border: 1px solid #30363d;
+            background-color: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            color: #58a6ff;
+            color: var(--accent-orange);
             font-size: 0.95rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: background-color 0.15s ease;
         }
-        .toggle-series-btn:active { background-color: #282e36; }
+        .toggle-series-btn:active { background-color: var(--surface-blue); }
 
         .series-accordion {
             margin-top: 10px;
             padding: 12px;
-            background-color: #0d1117;
-            border: 1px solid #30363d;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 8px;
         }
 
         .series-last-hint {
-            font-size: 0.8rem;
-            color: #8b949e;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
             margin-bottom: 12px;
             line-height: 1.4;
         }
@@ -457,7 +492,7 @@
         .set-label {
             font-size: 0.85rem;
             font-weight: 700;
-            color: #8b949e;
+            color: var(--text-secondary);
             min-width: 28px;
         }
 
@@ -474,10 +509,10 @@
             min-width: 0;
             min-height: 44px;
             padding: 8px 6px;
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: #e6edf3;
+            color: var(--text-primary);
             font-size: 16px; /* evita zoom automatico su iOS */
             text-align: center;
             box-sizing: border-box;
@@ -485,12 +520,12 @@
 
         .set-input:focus {
             outline: none;
-            border-color: #58a6ff;
+            border-color: var(--accent-orange);
         }
 
         .set-unit {
             font-size: 0.75rem;
-            color: #8b949e;
+            color: var(--text-secondary);
             white-space: nowrap;
         }
 
@@ -504,15 +539,15 @@
             flex: 1;
             min-height: 44px;
             padding: 8px;
-            background-color: #21262d;
-            border: 1px solid #30363d;
+            background-color: var(--surface-raised);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: #c9d1d9;
+            color: var(--text-primary);
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
         }
-        .set-action-btn:active { background-color: #30363d; }
+        .set-action-btn:active { background-color: var(--surface-blue); }
 
         .set-note-row {
             margin-top: 10px;
@@ -522,29 +557,29 @@
             width: 100%;
             min-height: 44px;
             padding: 10px 12px;
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: #e6edf3;
+            color: var(--text-primary);
             font-size: 16px; /* evita zoom automatico su iOS */
             box-sizing: border-box;
         }
         .set-note-input:focus {
             outline: none;
-            border-color: #58a6ff;
+            border-color: var(--accent-orange);
         }
 
-        /* Mini storico esercizio (Fase 2 B3) */
+        /* Mini storico esercizio */
         .series-history {
             margin-top: 14px;
             padding-top: 10px;
-            border-top: 1px dashed #30363d;
+            border-top: 1px dashed var(--border);
         }
 
         .series-history-title {
             font-size: 0.8rem;
             font-weight: 700;
-            color: #8b949e;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 6px;
@@ -563,17 +598,17 @@
             gap: 8px;
             font-size: 0.82rem;
             padding: 4px 0;
-            border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .series-history-date {
-            color: #58a6ff;
-            font-weight: 600;
+            color: var(--accent-cyan);
+            font-weight: 700;
             white-space: nowrap;
         }
 
         .series-history-data {
-            color: #c9d1d9;
+            color: var(--text-primary);
             text-align: right;
             word-break: break-word;
         }
@@ -581,7 +616,7 @@
         .series-history-empty {
             margin-top: 10px;
             font-size: 0.78rem;
-            color: #8b949e;
+            color: var(--text-secondary);
             font-style: italic;
         }
 
@@ -599,13 +634,13 @@
         .rest-title {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #e6edf3;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
         .rest-subtitle {
             font-size: 0.9rem;
-            color: #8b949e;
+            color: var(--text-secondary);
         }
 
         /* Sezione Esercizi (Database) */
@@ -624,41 +659,52 @@
         }
 
         .db-filter-btn {
-            background-color: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
+            background-color: var(--surface-raised);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.8rem;
+            padding: 10px 16px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
-            min-height: 36px;
+            min-height: 44px; /* Touch target >= 44px */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.2s ease;
         }
 
+        .db-filter-btn:active {
+            transform: scale(0.97);
+        }
+
         .db-filter-btn.active {
-            background-color: #58a6ff;
-            color: #0d1117;
-            border-color: #58a6ff;
+            background: var(--accent-orange-gradient);
+            color: #0B1220;
+            border-color: var(--accent-orange);
+            font-weight: 800;
+            box-shadow: var(--glow-orange);
         }
 
         .db-exercise-card {
-            background-color: #161b22;
-            border: 1px solid #21262d;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
         }
 
         .db-card-image {
             width: 100%;
             aspect-ratio: 1 / 1;
-            background-color: #0d1117;
+            background-color: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            border-bottom: 1px solid var(--border);
         }
 
         .db-card-image img {
@@ -681,21 +727,22 @@
         .db-card-title {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #e6edf3;
+            color: var(--text-primary);
         }
 
         .db-card-stats {
             margin-top: 8px;
             font-size: 0.9rem;
-            color: #58a6ff;
-            font-weight: 600;
+            color: var(--accent-orange);
+            font-weight: 700;
         }
 
         .db-toggle-desc-btn {
             background-color: transparent;
             border: none;
-            color: #58a6ff;
-            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            font-size: 0.82rem;
+            font-weight: 600;
             cursor: pointer;
             padding: 6px 0;
             margin-top: 6px;
@@ -706,7 +753,7 @@
             margin-top: 10px;
             font-size: 0.85rem;
             line-height: 1.5;
-            color: #8b949e;
+            color: var(--text-secondary);
         }
 
         /* Sezione Statistiche */
@@ -716,33 +763,37 @@
             margin-bottom: 16px;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border);
+            background-color: var(--surface-blue);
         }
 
         .stats-tab {
             flex: 1;
-            background-color: #21262d;
-            color: #c9d1d9;
+            background-color: var(--surface-raised);
+            color: var(--text-secondary);
             border: none;
             padding: 12px 8px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             min-height: 44px;
         }
 
         .stats-tab.active {
-            background-color: #58a6ff;
-            color: #0d1117;
+            background: var(--accent-orange-gradient);
+            color: #0B1220;
+            font-weight: 800;
+            box-shadow: var(--glow-orange);
         }
 
         /* Card aderenza */
         .adherence-card {
-            background-color: #161b22;
-            border: 1px solid #21262d;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
         }
 
         .adherence-header {
@@ -754,26 +805,27 @@
 
         .adherence-label {
             font-size: 0.85rem;
-            color: #8b949e;
+            color: var(--text-secondary);
         }
 
         .adherence-value {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #58a6ff;
+            color: var(--accent-orange);
         }
 
         .adherence-bar {
             width: 100%;
             height: 10px;
-            background-color: #21262d;
+            background-color: var(--bg-secondary);
             border-radius: 6px;
             overflow: hidden;
+            border: 1px solid var(--border-light);
         }
 
         .adherence-fill {
             height: 100%;
-            background-color: #238636;
+            background: var(--accent-orange-gradient);
             border-radius: 6px;
             transition: width 0.3s ease;
         }
@@ -786,22 +838,23 @@
 
         .stats-card {
             flex: 1;
-            background-color: #161b22;
-            border: 1px solid #21262d;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 12px;
             text-align: center;
+            box-shadow: var(--shadow-card);
         }
 
         .stats-card-value {
             font-size: 1.3rem;
-            font-weight: 700;
-            color: #58a6ff;
+            font-weight: 800;
+            color: var(--accent-orange);
         }
 
         .stats-card-label {
-            font-size: 0.7rem;
-            color: #8b949e;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
             margin-top: 4px;
         }
 
@@ -810,15 +863,16 @@
             max-width: 100%;
             height: auto;
             aspect-ratio: 440 / 260;
-            background-color: #161b22;
+            background-color: var(--surface-blue);
             border-radius: 10px;
-            border: 1px solid #21262d;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-card);
         }
 
         .stats-empty {
             text-align: center;
             padding: 32px 16px;
-            color: #8b949e;
+            color: var(--text-secondary);
         }
 
         .stats-empty-emoji {
@@ -833,19 +887,20 @@
         .period-workouts-title {
             font-size: 1rem;
             font-weight: 700;
-            color: #e6edf3;
+            color: var(--text-primary);
             margin: 0 0 10px 0;
         }
         .period-groups-summary {
             font-size: 0.85rem;
-            color: #58a6ff;
-            font-weight: 600;
-            background-color: #161b22;
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid #30363d;
+            color: var(--accent-orange);
+            font-weight: 700;
+            background-color: var(--surface-blue);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
             margin-bottom: 12px;
             line-height: 1.4;
+            box-shadow: var(--shadow-card);
         }
         .period-workouts-list {
             display: flex;
@@ -857,20 +912,21 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             padding: 10px 14px;
-            min-height: 44px;
+            min-height: 48px;
             box-sizing: border-box;
             transition: all 0.15s ease;
+            box-shadow: var(--shadow-card);
         }
         .period-workout-row.clickable {
             cursor: pointer;
         }
         .period-workout-row.clickable:active {
-            background-color: #21262d;
-            border-color: #58a6ff;
+            background-color: var(--surface-raised);
+            border-color: var(--accent-orange);
             transform: scale(0.99);
         }
         .period-workout-row.non-clickable {
@@ -879,7 +935,7 @@
         }
         .period-workout-date {
             font-weight: 700;
-            color: #e6edf3;
+            color: var(--text-primary);
             font-size: 0.85rem;
             min-width: 80px;
         }
@@ -892,16 +948,197 @@
         }
         .period-workout-count {
             font-size: 0.8rem;
-            font-weight: 600;
-            color: #8b949e;
+            font-weight: 700;
+            color: var(--text-secondary);
             white-space: nowrap;
             margin-left: auto;
         }
         .period-workout-arrow {
-            color: #58a6ff;
+            color: var(--accent-orange);
             font-size: 1rem;
             font-weight: bold;
             margin-left: 4px;
+        }
+
+        /* =========================================================
+           TIMER DI RECUPERO GLOBALE (Sticky Bottom Widget)
+           ========================================================= */
+        #workout-timer-widget {
+            position: fixed;
+            bottom: max(16px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 456px;
+            background-color: var(--surface-raised);
+            border: 2px solid var(--accent-orange);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            z-index: 9998;
+            overflow: hidden;
+            display: block; /* Visibile e pronto */
+            transition: all 0.25s ease;
+        }
+
+        .timer-progress-bar {
+            height: 4px;
+            background: var(--accent-orange-gradient);
+            width: 0%;
+            transition: width 0.25s linear;
+        }
+
+        .timer-widget-content {
+            padding: 8px 14px;
+        }
+
+        .timer-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .timer-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .timer-display {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-orange);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+        }
+
+        .timer-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .timer-toggle-btn:active {
+            color: var(--text-primary);
+        }
+
+        .timer-expanded-panel {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .timer-presets-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .timer-preset-btn {
+            flex: 1;
+            min-height: 44px;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .timer-preset-btn:active {
+            transform: scale(0.96);
+            background: var(--accent-orange);
+            color: #0B1220;
+        }
+
+        .timer-preset-btn.add-time {
+            color: var(--accent-orange);
+            border-color: rgba(255, 122, 26, 0.5);
+        }
+
+        .timer-controls-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timer-ctrl-btn {
+            flex: 1;
+            min-height: 44px;
+            background-color: var(--surface-blue);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .timer-ctrl-btn.primary {
+            background: var(--accent-orange-gradient);
+            color: #0B1220;
+            border-color: var(--accent-orange);
+            font-weight: 800;
+        }
+
+        .timer-ctrl-btn:active {
+            transform: scale(0.96);
+        }
+
+        .timer-widget.timer-warning {
+            border-color: var(--warning);
+            box-shadow: 0 0 16px rgba(255, 209, 102, 0.4);
+        }
+
+        .timer-widget.timer-warning .timer-display {
+            color: var(--warning);
+        }
+
+        .timer-widget.timer-ended {
+            border-color: var(--success);
+            box-shadow: 0 0 16px rgba(123, 224, 161, 0.4);
+        }
+
+        .timer-widget.timer-ended .timer-display {
+            color: var(--success);
+        }
+
+        /* Pulsante rapido recupero nella card esercizio */
+        .quick-timer-btn {
+            min-height: 44px;
+            padding: 10px 14px;
+            background-color: var(--surface-raised);
+            border: 1px solid rgba(255, 122, 26, 0.5);
+            border-radius: 8px;
+            color: var(--accent-orange);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .quick-timer-btn:active {
+            transform: scale(0.96);
+            background: var(--accent-orange);
+            color: #0B1220;
         }
     </style>
 </head>
@@ -968,18 +1205,46 @@
 
         <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; gap: 10px;">
-                <button onclick="exportData()" style="flex:1; background:#238636; color:white; border:none; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; min-height:48px;">📥 Esporta Dati</button>
-                <label style="flex:1; background:#21262d; color:#c9d1d9; border:1px solid #30363d; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center;">
+                <button onclick="exportData()" style="flex:1; background:var(--accent-orange-gradient); color:#0B1220; border:none; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:800; cursor:pointer; min-height:48px; box-shadow:var(--glow-orange);">📥 Esporta Dati</button>
+                <label style="flex:1; background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border); border-radius:10px; padding:14px; font-size:0.9rem; font-weight:700; cursor:pointer; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center;">
                     📤 Importa Dati
                     <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
                 </label>
             </div>
-            <button type="button" onclick="showBackupList()" style="width:100%; background:#21262d; color:#c9d1d9; border:1px solid #30363d; border-radius:10px; padding:14px; font-size:0.9rem; font-weight:600; cursor:pointer; min-height:48px;">🔄 Ripristina Backup</button>
-            <div id="backup-list-container" style="display:none; background:#161b22; border:1px solid #30363d; border-radius:10px; padding:12px;"></div>
+            <button type="button" onclick="showBackupList()" style="width:100%; background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border); border-radius:10px; padding:14px; font-size:0.9rem; font-weight:700; cursor:pointer; min-height:48px;">🔄 Ripristina Backup</button>
+            <div id="backup-list-container" style="display:none; background:var(--surface-blue); border:1px solid var(--border); border-radius:10px; padding:12px;"></div>
         </div>
-        <p id="data-status" style="font-size:0.8rem; color:#8b949e; margin-top:8px; text-align:center;"></p>
+        <p id="data-status" style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px; text-align:center;"></p>
     </div>
 
+    <!-- Timer di Recupero Globale (Sticky Bottom) -->
+    <div id="workout-timer-widget" class="timer-widget">
+        <div class="timer-progress-bar" id="timer-progress-bar"></div>
+        <div class="timer-widget-content">
+            <div class="timer-info-row">
+                <div class="timer-title-group">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-status-text" id="timer-status-text">Recupero</span>
+                </div>
+                <div class="timer-display" id="timer-display">01:00</div>
+                <button type="button" class="timer-toggle-btn" id="timer-toggle-btn" onclick="toggleTimerExpand()" aria-label="Espandi o comprimi timer">▲</button>
+            </div>
+            <div class="timer-expanded-panel" id="timer-expanded-panel">
+                <div class="timer-presets-row">
+                    <button type="button" class="timer-preset-btn" onclick="startTimerPreset(45)">45s</button>
+                    <button type="button" class="timer-preset-btn" onclick="startTimerPreset(60)">60s</button>
+                    <button type="button" class="timer-preset-btn" onclick="startTimerPreset(90)">90s</button>
+                    <button type="button" class="timer-preset-btn" onclick="startTimerPreset(120)">120s</button>
+                    <button type="button" class="timer-preset-btn add-time" onclick="addTimerSeconds(15)">+15s</button>
+                </div>
+                <div class="timer-controls-row">
+                    <button type="button" class="timer-ctrl-btn primary" id="timer-play-btn" onclick="toggleTimerPlay()">Avvia</button>
+                    <button type="button" class="timer-ctrl-btn" onclick="resetTimer()">Reset</button>
+                    <button type="button" class="timer-ctrl-btn" onclick="closeTimerWidget()">Nascondi</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         /* =========================================================
@@ -2064,7 +2329,10 @@
                     <span class="check">✓</span>
                     <span class="done-label">${done ? 'Fatto' : 'Segna come fatto'}</span>
                 </button>
-                <button type="button" class="toggle-series-btn" onclick="toggleSeriesAccordion('${id}', this)">Serie ▾</button>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button type="button" class="toggle-series-btn" style="flex: 1; margin-top: 0;" onclick="toggleSeriesAccordion('${id}', this)">Serie ▾</button>
+                    <button type="button" class="quick-timer-btn" onclick="startTimerPreset(60)" title="Avvia recupero 60s">⏱️ 60s</button>
+                </div>
                 <div class="series-accordion" id="series-accordion-${id}" style="display: none;">
                     ${lastHint ? `<div class="series-last-hint">${lastHint}</div>` : ''}
                     <div class="series-list" id="series-list-${id}">
@@ -2602,7 +2870,7 @@
                 const x = padding.left + i * (chartW / barCount) + barGap / 2;
                 const y = padding.top + chartH - barH;
 
-                ctx.fillStyle = val > 0 ? '#58a6ff' : '#21262d';
+                ctx.fillStyle = val > 0 ? '#FF7A1A' : '#172740';
                 ctx.beginPath();
                 if (ctx.roundRect) {
                     ctx.roundRect(x, y, barWidth, barH, [4, 4, 0, 0]);
@@ -2612,7 +2880,7 @@
                 ctx.fill();
             });
 
-            ctx.fillStyle = '#8b949e';
+            ctx.fillStyle = '#B7C5D8';
             ctx.font = `${period === 'settimana' ? 11 : 8}px -apple-system, sans-serif`;
             ctx.textAlign = 'center';
 
@@ -2651,14 +2919,202 @@
             maybeDailyBackup();
         });
 
+        /* =========================================================
+           TIMER DI RECUPERO GLOBALE (Workout-Centric, Offline-First)
+           ========================================================= */
+        let timerTargetTimestamp = null;
+        let timerDurationSeconds = 60;
+        let timerRemainingSeconds = 60;
+        let timerIsRunning = false;
+        let timerIntervalId = null;
+        let timerIsExpanded = false;
+
+        function formatTimerTime(totalSec) {
+            const m = Math.floor(totalSec / 60);
+            const s = totalSec % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateTimerUI() {
+            const widget = document.getElementById('workout-timer-widget');
+            const display = document.getElementById('timer-display');
+            const statusText = document.getElementById('timer-status-text');
+            const playBtn = document.getElementById('timer-play-btn');
+            const pBar = document.getElementById('timer-progress-bar');
+            if (!widget || !display) return;
+
+            if (timerIsRunning) {
+                const now = Date.now();
+                const diffMs = timerTargetTimestamp - now;
+                timerRemainingSeconds = Math.max(0, Math.ceil(diffMs / 1000));
+
+                if (timerRemainingSeconds <= 0) {
+                    timerRemainingSeconds = 0;
+                    timerIsRunning = false;
+                    clearInterval(timerIntervalId);
+                    timerIntervalId = null;
+                    onTimerComplete();
+                }
+            }
+
+            display.textContent = formatTimerTime(timerRemainingSeconds);
+
+            // Aggiornamento barra di progresso
+            const total = Math.max(1, timerDurationSeconds);
+            const progressPercent = Math.max(0, Math.min(100, ((total - timerRemainingSeconds) / total) * 100));
+            if (pBar) {
+                pBar.style.width = `${progressPercent}%`;
+            }
+
+            // Stati di colore & avvisi
+            widget.classList.toggle('timer-active', timerIsRunning);
+            widget.classList.toggle('timer-warning', timerIsRunning && timerRemainingSeconds <= 5 && timerRemainingSeconds > 0);
+            widget.classList.toggle('timer-ended', timerRemainingSeconds === 0 && !timerIsRunning);
+
+            if (playBtn) {
+                playBtn.textContent = timerIsRunning ? 'Pausa' : (timerRemainingSeconds === 0 ? 'Ricomincia' : 'Avvia');
+            }
+            if (statusText) {
+                if (timerRemainingSeconds === 0) {
+                    statusText.textContent = '🎉 Pronto alla serie!';
+                } else if (timerIsRunning) {
+                    statusText.textContent = timerRemainingSeconds <= 5 ? '⚠️ Quasi pronto!' : 'Recupero in corso';
+                } else {
+                    statusText.textContent = 'Recupero in pausa';
+                }
+            }
+        }
+
+        function startTimerPreset(seconds) {
+            timerDurationSeconds = seconds;
+            timerRemainingSeconds = seconds;
+            timerTargetTimestamp = Date.now() + seconds * 1000;
+            timerIsRunning = true;
+            if (timerIntervalId) clearInterval(timerIntervalId);
+            timerIntervalId = setInterval(updateTimerUI, 250);
+            showTimerWidget();
+            updateTimerUI();
+        }
+
+        function addTimerSeconds(addSec) {
+            if (timerIsRunning) {
+                timerTargetTimestamp += addSec * 1000;
+            }
+            timerDurationSeconds += addSec;
+            timerRemainingSeconds += addSec;
+            updateTimerUI();
+        }
+
+        function toggleTimerPlay() {
+            if (timerIsRunning) {
+                timerIsRunning = false;
+                if (timerIntervalId) clearInterval(timerIntervalId);
+                timerIntervalId = null;
+                updateTimerUI();
+            } else {
+                if (timerRemainingSeconds <= 0) {
+                    timerRemainingSeconds = timerDurationSeconds || 60;
+                }
+                timerTargetTimestamp = Date.now() + timerRemainingSeconds * 1000;
+                timerIsRunning = true;
+                if (timerIntervalId) clearInterval(timerIntervalId);
+                timerIntervalId = setInterval(updateTimerUI, 250);
+                showTimerWidget();
+                updateTimerUI();
+            }
+        }
+
+        function resetTimer() {
+            timerIsRunning = false;
+            if (timerIntervalId) clearInterval(timerIntervalId);
+            timerIntervalId = null;
+            timerRemainingSeconds = timerDurationSeconds;
+            const widget = document.getElementById('workout-timer-widget');
+            if (widget) {
+                widget.classList.remove('timer-ended', 'timer-warning');
+            }
+            updateTimerUI();
+        }
+
+        function showTimerWidget() {
+            const widget = document.getElementById('workout-timer-widget');
+            if (widget) {
+                widget.style.display = 'block';
+            }
+        }
+
+        function closeTimerWidget() {
+            const widget = document.getElementById('workout-timer-widget');
+            if (widget) {
+                if (!timerIsRunning) {
+                    widget.style.display = 'none';
+                } else {
+                    collapseTimer();
+                }
+            }
+        }
+
+        function toggleTimerExpand() {
+            timerIsExpanded = !timerIsExpanded;
+            const panel = document.getElementById('timer-expanded-panel');
+            const toggleBtn = document.getElementById('timer-toggle-btn');
+            if (panel) {
+                panel.style.display = timerIsExpanded ? 'block' : 'none';
+            }
+            if (toggleBtn) {
+                toggleBtn.textContent = timerIsExpanded ? '▼' : '▲';
+            }
+        }
+
+        function collapseTimer() {
+            timerIsExpanded = false;
+            const panel = document.getElementById('timer-expanded-panel');
+            const toggleBtn = document.getElementById('timer-toggle-btn');
+            if (panel) panel.style.display = 'none';
+            if (toggleBtn) toggleBtn.textContent = '▲';
+        }
+
+        function onTimerComplete() {
+            updateTimerUI();
+            if (navigator.vibrate) {
+                try { navigator.vibrate([200, 100, 200, 100, 300]); } catch(e) {}
+            }
+            playBeepSound();
+        }
+
+        function playBeepSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 checkDateChangeOnResume();
+                if (timerIsRunning) {
+                    updateTimerUI();
+                }
             }
         });
 
         window.addEventListener('focus', () => {
             checkDateChangeOnResume();
+            if (timerIsRunning) {
+                updateTimerUI();
+            }
         });
 
         /* =========================================================
