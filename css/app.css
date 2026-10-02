@@ -354,13 +354,6 @@
         .badge-gambe, .badge-glutei, .badge-gambe\ e\ glutei { background-color: rgba(86, 211, 196, 0.15); color: #56d3c4; border-color: rgba(86, 211, 196, 0.35); }
         .badge-riposo\ attivo, .badge-riposo-attivo { background-color: rgba(255, 122, 26, 0.15); color: var(--accent-orange); border-color: rgba(255, 122, 26, 0.4); }
 
-        .exercise-sets {
-            margin-top: 8px;
-            font-size: 0.95rem;
-            color: var(--accent-orange);
-            font-weight: 700;
-        }
-
         .toggle-desc-btn {
             background-color: transparent;
             border: none;
@@ -716,13 +709,6 @@
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-primary);
-        }
-
-        .db-card-stats {
-            margin-top: 8px;
-            font-size: 0.9rem;
-            color: var(--accent-orange);
-            font-weight: 700;
         }
 
         .db-toggle-desc-btn {
