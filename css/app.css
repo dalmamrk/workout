@@ -90,6 +90,28 @@
             text-align: center;
             margin-bottom: 20px;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Icone UI SVG */
+        .ui-icon {
+            display: inline-block;
+            vertical-align: -0.22em;
+            width: 22px;
+            height: 22px;
+            stroke: #B7C5D8;
+            color: #B7C5D8;
+            flex-shrink: 0;
+            transition: stroke 0.2s ease, color 0.2s ease;
+        }
+
+        .ui-icon-title {
+            width: 24px;
+            height: 24px;
+            vertical-align: -0.15em;
         }
 
         /* Nav Tabs */
@@ -108,12 +130,23 @@
             background-color: var(--surface-raised);
             color: var(--text-secondary);
             border: none;
-            padding: 14px 8px;
-            font-size: 0.9rem;
+            padding: 12px 6px;
+            font-size: 0.88rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .nav-tab .ui-icon {
+            width: 20px;
+            height: 20px;
+            stroke: #B7C5D8;
+            color: #B7C5D8;
         }
 
         .nav-tab.active {
@@ -121,6 +154,12 @@
             color: #0B1220;
             font-weight: 800;
             box-shadow: var(--glow-orange);
+        }
+
+        .nav-tab.active .ui-icon {
+            stroke: #FF7A1A;
+            color: #FF7A1A;
+            filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.65));
         }
 
         .nav-tab:active {
@@ -200,6 +239,16 @@
             margin: 0;
             font-size: 1rem;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #steps-section h3 .ui-icon {
+            width: 22px;
+            height: 22px;
+            stroke: #B7C5D8;
+            color: #B7C5D8;
         }
 
         .steps-input-row {
@@ -608,8 +657,54 @@
         }
 
         .rest-emoji {
-            font-size: 3rem;
             margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rest-emoji .ui-icon {
+            width: 48px;
+            height: 48px;
+            stroke: #B7C5D8;
+            color: #B7C5D8;
+        }
+
+        .db-filter-btn.btn-mark-rest {
+            background: #238636;
+            color: white;
+            border: 1px solid #2ea043;
+            padding: 10px 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .db-filter-btn.btn-mark-rest .ui-icon {
+            width: 20px;
+            height: 20px;
+            stroke: #FFFFFF;
+            color: #FFFFFF;
+        }
+
+        .stats-rest-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .stats-rest-label .ui-icon {
+            width: 18px;
+            height: 18px;
+            stroke: #B7C5D8;
+            color: #B7C5D8;
         }
 
         .rest-title {

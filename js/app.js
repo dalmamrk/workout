@@ -60,6 +60,9 @@
         const ISO_TO_WEEKDAY = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
         const GROUPS = ["Tutti", "Petto", "Bicipiti", "Tricipiti", "Spalle", "Dorso", "Core", "Gambe e Glutei", "Riposo attivo"];
 
+        const ICON_PASSI_SVG = `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14.9 C2.9 13.7 3.4 12.8 4.4 12.4 C5.1 12.1 6 12.2 6.9 12.5 C7.8 11.6 8.6 9.6 9.6 7.9 C10.2 6.7 11.1 5.8 12.2 5.7 C13.4 5.6 14.4 6.5 15.1 7.8 C15.9 9.1 17.2 10.1 19 10.8 C20.4 11.3 21 12.2 21.3 13.6 L21.5 15.2 C21.7 16.2 21 16.8 20.2 17.1 C19.3 17.5 18.1 17.8 16.7 17.8 H5.2 C4 17.8 3.1 17.1 3 16.1 C2.9 15.7 2.9 15.3 3 14.9 Z"/><path d="M4.3 16.2 C8 16.9 15.5 17.1 19.8 16.1"/><path class="accent" d="M10.2 8.7 12.6 9.4 10.9 10.2 13.2 10.9" stroke="#FF7A1A" stroke-width="1.5"/></svg>`;
+        const ICON_RIPOSO_SVG = `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="15" height="10" rx="2"/><path d="M19 10h1.5v4H19"/><path class="accent" d="M13.4 8.4 9.6 12.8h2.6L10.8 16l4.5-5.2h-2.5z" fill="#FF7A1A" stroke="none"/></svg>`;
+
         let selectedDate = '';
 
         function toISO(d) {
@@ -637,7 +640,7 @@
                 document.getElementById('day-subtitle').textContent = restDoneCount > 0 ? `${restDoneCount} esercizio di riposo attivo completato` : 'Riposo dai pesi';
                 let uiHTML = `
                   <div class="rest-day" style="text-align: center; margin-bottom: 20px;">
-                    <div class="rest-emoji">😴</div>
+                    <div class="rest-emoji">${ICON_RIPOSO_SVG}</div>
                     <p class="rest-title">Riposo dai pesi</p>
                     <p class="rest-subtitle">Recupera le energie o dedicati al riposo attivo.</p>
                     <button class="db-filter-btn" style="margin-top:12px; border-color:#8b949e; color:#c9d1d9;" onclick="toggleRestDay('${iso}')">Annulla Riposo</button>
@@ -661,7 +664,7 @@
 
             let uiHTML = `
                 <div style="text-align:center; margin-bottom:20px;">
-                   <button class="db-filter-btn" style="background:#238636; color:white; border-color:#2ea043; padding: 10px 20px; font-weight: 600;" onclick="toggleRestDay('${iso}')">😴 Segna come Giorno di Riposo</button>
+                   <button class="db-filter-btn btn-mark-rest" onclick="toggleRestDay('${iso}')">${ICON_RIPOSO_SVG} Segna come Giorno di Riposo</button>
                 </div>
                 <div id="day-filter-container" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #30363d;">
             `;
@@ -1264,7 +1267,7 @@
             const isFuture = iso > todayISO;
 
             if (title) {
-                title.textContent = '🦶 ' + formatStepsDateLabel(iso, todayISO);
+                title.innerHTML = `${ICON_PASSI_SVG} ${formatStepsDateLabel(iso, todayISO)}`;
             }
 
             if (isFuture) {
@@ -1486,9 +1489,9 @@
                     let countHTML = '';
                     if (item.isRest) {
                         if (item.hasActiveRest) {
-                            centerHTML = `<div style="display:flex; align-items:center; gap:6px;"><span style="color:#8b949e; font-size:0.85rem; font-style:italic;">😴 Riposo</span><div class="period-workout-badges"><span class="muscle-badge badge-riposo-attivo">Riposo attivo</span></div></div>`;
+                            centerHTML = `<div style="display:flex; align-items:center; gap:6px;"><span class="stats-rest-label">${ICON_RIPOSO_SVG} Riposo</span><div class="period-workout-badges"><span class="muscle-badge badge-riposo-attivo">Riposo attivo</span></div></div>`;
                         } else {
-                            centerHTML = `<span style="color:#8b949e; font-size:0.85rem; font-style:italic;">😴 Riposo</span>`;
+                            centerHTML = `<span class="stats-rest-label">${ICON_RIPOSO_SVG} Riposo</span>`;
                         }
                         countHTML = `<span class="period-workout-count">—</span>`;
                     } else {

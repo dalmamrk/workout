@@ -1,5 +1,5 @@
 // sw.js — Service Worker per Workout PWA (funzionamento offline e cache per iPhone/desktop)
-const CACHE_VERSION = 'workout-v9';
+const CACHE_VERSION = 'workout-v10';
 const CACHE_NAME = CACHE_VERSION;
 
 const PRECACHE_URLS = [
@@ -12,6 +12,7 @@ const PRECACHE_URLS = [
     'manifest.webmanifest',
     'icons/icon-192.png',
     'icons/icon-512.png',
+    'icons/icon-maskable-512.png',
     'icons/apple-touch-icon.png',
     'immagini/1_triceps_Overhead_DB_Tricep_Extension.png',
     'immagini/Dumbbell_Bench_Hip_Thrust.png',
